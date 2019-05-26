@@ -1,0 +1,22 @@
+[pbimage]
+key_index = 0
+key_source = ../punchboot/pki/secp256r1-key-pair.pem
+hash_kind = SHA256
+sign_kind = EC256
+output = jiffy.pbi
+
+[component]
+type = DT
+load_addr = 0x82820000
+file = build/linux-4.14.78-jiffy/arch/arm/boot/dts/jiffy.dtb
+
+[component]
+type = LINUX
+load_addr = 0x83000000
+file = build/linux-4.14.78-jiffy/arch/arm/boot/zImage
+
+[component]
+type = RAMDISK
+load_addr = 0x83f00000
+file = build/initramfs.cpio
+

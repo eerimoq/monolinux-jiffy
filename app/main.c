@@ -87,7 +87,10 @@ static void lzma_test(void)
 int main()
 {
     xmount("none", "/proc", "proc");
+    xmount("none", "/sys", "sysfs");
 
+    ml_print_uptime();
+    
     ml_init();
     ml_shell_init();
     ml_shell_register_command("http_get", "HTTP GET.", command_http_get);

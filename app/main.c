@@ -5,6 +5,7 @@
 #include <heatshrink_decoder.h>
 #include <lzma.h>
 #include <detools.h>
+#include <openssl/aes.h>
 #include "ml/ml.h"
 
 static size_t on_write(void *buf_p, size_t size, size_t nmemb, void *arg_p)
@@ -103,6 +104,11 @@ static void detools_test(void)
     }
 }
 
+static void openssl_test(void)
+{
+    printf("openssl AES options: '%s'\n", AES_options());
+}
+
 int main()
 {
     xmount("none", "/proc", "proc");
@@ -122,6 +128,7 @@ int main()
     heatshrink_test();
     lzma_test();
     detools_test();
+    openssl_test();
 
     while (true) {
         sleep(10);

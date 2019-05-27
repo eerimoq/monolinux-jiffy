@@ -4,6 +4,7 @@
 #include <heatshrink_encoder.h>
 #include <heatshrink_decoder.h>
 #include <lzma.h>
+#include <detools.h>
 #include "ml/ml.h"
 
 static size_t on_write(void *buf_p, size_t size, size_t nmemb, void *arg_p)
@@ -84,13 +85,31 @@ static void lzma_test(void)
     }
 }
 
+static void detools_test(void)
+{
+    int res;
+
+    printf("Applying patch 'patch' to 'from' to create 'to'.\n");
+
+    res = detools_apply_patch_filenames("from", "patch", "to");
+
+    if (res >= 0) {
+        printf("detools: OK!\n");
+    } else {
+        res *= -1;
+        printf("error: detools: %s (error code %d)\n",
+               detools_error_as_string(res),
+               res);
+    }
+}
+
 int main()
 {
     xmount("none", "/proc", "proc");
     xmount("none", "/sys", "sysfs");
 
     ml_print_uptime();
-    
+
     ml_init();
     ml_shell_init();
     ml_shell_register_command("http_get", "HTTP GET.", command_http_get);
@@ -102,6 +121,7 @@ int main()
 
     heatshrink_test();
     lzma_test();
+    detools_test();
 
     while (true) {
         sleep(10);

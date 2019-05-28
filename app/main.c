@@ -25,7 +25,7 @@ static void http_get(const char *url_p)
     int res;
 
     printf("\n>>> HTTP GET %s. >>>\n", url_p);
-
+    curl_global_init(CURL_GLOBAL_DEFAULT);
     curl_p = curl_easy_init();
 
     if (curl_p) {
@@ -43,6 +43,8 @@ static void http_get(const char *url_p)
 
         curl_easy_cleanup(curl_p);
     }
+
+    curl_global_cleanup();
 }
 
 static int command_http_get(int argc, const char *argv[])
@@ -116,12 +118,6 @@ int main()
     xmount("none", "/sys", "sysfs");
 
     ml_print_uptime();
-
-    if (OPENSSL_init_ssl(0, NULL) == 1) {
-        printf("SSL init OK!\n");
-    } else {
-        printf("SSL init failed!\n");
-    }
 
     ml_init();
     ml_shell_init();

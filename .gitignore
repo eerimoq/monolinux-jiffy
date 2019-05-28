@@ -1,3 +1,5 @@
 build
 jiffy.pbi
 arm-linux-musleabi-cross
+sources/*.tar.gz
+sources/*.tar.xz

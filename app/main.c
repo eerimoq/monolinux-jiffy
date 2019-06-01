@@ -114,8 +114,8 @@ static void openssl_test(void)
 
 int main()
 {
-    xmount("none", "/proc", "proc");
-    xmount("none", "/sys", "sysfs");
+    ml_mount("none", "/proc", "proc");
+    ml_mount("none", "/sys", "sysfs");
 
     ml_print_uptime();
 

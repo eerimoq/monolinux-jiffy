@@ -32,13 +32,19 @@ static void http_get(const char *url_p)
         curl_easy_setopt(curl_p, CURLOPT_URL, url_p);
         curl_easy_setopt(curl_p, CURLOPT_WRITEFUNCTION, on_write);
 
+        /* WARNING: Makes the connection unsecure! */
+        curl_easy_setopt(curl_p, CURLOPT_SSL_VERIFYPEER, 0);
+        curl_easy_setopt(curl_p, CURLOPT_SSL_VERIFYHOST, 0);
+
         res = curl_easy_perform(curl_p);
 
         if (res == CURLE_OK) {
             curl_easy_getinfo(curl_p, CURLINFO_RESPONSE_CODE, &response_code);
             printf("<<< HTTP GET response code %ld. <<<\n", response_code);
         } else {
-            printf("<<< HTTP GET CURL error %d. <<<\n", res);
+            printf("<<< HTTP GET CURL error code %d: %s. <<<\n",
+                   res,
+                   curl_easy_strerror(res));
         }
 
         curl_easy_cleanup(curl_p);
@@ -124,9 +130,17 @@ int main()
     ml_shell_register_command("http_get", "HTTP GET.", command_http_get);
     ml_network_init();
     ml_shell_start();
-
-    ml_network_interface_configure("eth0", "192.168.0.100", "255.255.255.0");
     ml_network_interface_up("eth0");
+
+# if 0
+    ml_network_interface_configure("eth0", "192.168.0.100", "255.255.255.0");
+    ml_network_interface_add_route("eth0", "192.168.0.1");
+#else
+    struct ml_dhcp_client_t dhcp_client;
+
+    ml_dhcp_client_init(&dhcp_client, "eth0", ML_LOG_UPTO(DEBUG));
+    ml_dhcp_client_start(&dhcp_client);
+#endif
 
     heatshrink_test();
     lzma_test();

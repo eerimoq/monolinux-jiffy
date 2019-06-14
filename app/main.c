@@ -25,7 +25,7 @@ static void http_get(const char *url_p)
     int res;
 
     printf("\n>>> HTTP GET %s. >>>\n", url_p);
-    curl_global_init(CURL_GLOBAL_DEFAULT);
+
     curl_p = curl_easy_init();
 
     if (curl_p) {
@@ -49,8 +49,6 @@ static void http_get(const char *url_p)
 
         curl_easy_cleanup(curl_p);
     }
-
-    curl_global_cleanup();
 }
 
 static int command_http_get(int argc, const char *argv[])
@@ -124,6 +122,8 @@ int main()
     ml_mount("none", "/sys", "sysfs");
 
     ml_print_uptime();
+
+    curl_global_init(CURL_GLOBAL_DEFAULT);
 
     ml_init();
     ml_shell_init();

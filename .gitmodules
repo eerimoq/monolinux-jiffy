@@ -3,4 +3,4 @@
 	url = https://github.com/eerimoq/monolinux
 [submodule "punchboot"]
 	path = punchboot
-	url = https://github.com/jonpe960/punchboot
+	url = https://github.com/eerimoq/punchboot

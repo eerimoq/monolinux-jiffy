@@ -8,12 +8,12 @@ output = jiffy.pbi
 [component]
 type = DT
 load_addr = 0x82820000
-file = build/linux-4.14.78-jiffy/arch/arm/boot/dts/jiffy.dtb
+file = build/linux/arch/arm/boot/dts/jiffy.dtb
 
 [component]
 type = LINUX
 load_addr = 0x83000000
-file = build/linux-4.14.78-jiffy/arch/arm/boot/zImage
+file = build/linux/arch/arm/boot/zImage
 
 [component]
 type = RAMDISK

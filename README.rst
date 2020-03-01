@@ -22,4 +22,4 @@ Then do:
    $ git submodule update --init --recursive
    $ tar xf sources/arm-linux-musleabi-cross.tgz
    $ source setup.sh
-   $ make -s -j4 # or make -s -j4 JIFFY_AUTH_COOKIE=<path>
+   $ make -s -j4  # or make -s -j4 JIFFY_AUTH_COOKIE=<path>

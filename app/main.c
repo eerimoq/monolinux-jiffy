@@ -111,8 +111,8 @@ static void detools_test(void)
 
 int main()
 {
-    ml_mount("none", "/proc", "proc", 0);
-    ml_mount("none", "/sys", "sysfs", 0);
+    ml_mount("none", "/proc", "proc", 0, NULL);
+    ml_mount("none", "/sys", "sysfs", 0, NULL);
 
     ml_print_uptime();
 

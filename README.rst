@@ -9,17 +9,10 @@ Bootloader: https://github.com/jonpe960/punchboot
 
 Hardware: https://github.com/jonpe960/jiffy
 
-Setup
-=====
-
-Build and install ``punchboot`` (punchboot/src/tools/punchboot) and
-``pbimage`` (punchboot/src/tools/pbimage).
-
-Then do:
+Build and run
+=============
 
 .. code-block:: shell
 
-   $ git submodule update --init --recursive
-   $ tar xf sources/arm-linux-musleabi-cross.tgz
-   $ source setup.sh
-   $ make -s -j4  # or make -s -j4 JIFFY_AUTH_COOKIE=<path>
+   $ ./rundocker.sh
+   $ make -j4

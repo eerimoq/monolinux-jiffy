@@ -1,5 +1,5 @@
 [submodule "punchboot"]
-	path = punchboot
+	path = 3pp/punchboot
 	url = https://github.com/eerimoq/punchboot
 [submodule "3pp/detools"]
 	path = 3pp/detools

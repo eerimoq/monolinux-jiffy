@@ -1,6 +1,6 @@
 [pbimage]
 key_index = 0
-key_source = ../punchboot/pki/secp256r1-key-pair.pem
+key_source = ../3pp/punchboot/pki/secp256r1-key-pair.pem
 hash_kind = SHA256
 sign_kind = EC256
 output = jiffy.pbi

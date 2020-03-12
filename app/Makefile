@@ -1,5 +1,5 @@
 JIFFY_DTB = $(LINUX_SRC)/arch/arm/boot/dts/jiffy.dtb
-AUTH_COOKIE ?=
+JIFFY_AUTH_COOKIE ?= jiffy_auth_cookie
 PACKAGES += curl
 PACKAGES += heatshrink
 PACKAGES += xz
@@ -19,7 +19,5 @@ jiffy.pbi: $(JIFFY_DTB) $(LINUX_SRC)/arch/arm/boot/zImage $(INITRAMFS)
 	pbimage jiffy.pbc
 
 upload:
-ifneq ($(JIFFY_AUTH_COOKIE),)
 	punchboot dev -a -s secp256r1:sha256 -n 0 -f $(JIFFY_AUTH_COOKIE)
-endif
 	punchboot boot -x -f jiffy.pbi

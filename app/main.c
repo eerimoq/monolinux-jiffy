@@ -1,3 +1,8 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <stdint.h>
 #include <unistd.h>
 #include <string.h>
 #include <curl/curl.h>
@@ -6,6 +11,11 @@
 #include <lzma.h>
 #include <detools.h>
 #include "ml/ml.h"
+
+struct folder_t {
+    const char *path_p;
+    int mode;
+};
 
 static size_t on_write(void *buf_p, size_t size, size_t nmemb, void *arg_p)
 {
@@ -62,6 +72,24 @@ static int command_http_get(int argc, const char *argv[])
     return (0);
 }
 
+static int command_ntp_sync(int argc, const char *argv[])
+{
+    int res;
+    const char *server_p;
+
+    if (argc == 1) {
+        server_p = "0.se.pool.ntp.org";
+    } else if (argc == 2) {
+        server_p = argv[1];
+    } else {
+        printf("Usage: ntp_sync [<server>]\n");
+
+        return (-1);
+    }
+
+    return (ml_ntp_client_sync(server_p));
+}
+
 static void heatshrink_test(void)
 {
     heatshrink_encoder hse;
@@ -109,18 +137,53 @@ static void detools_test(void)
     }
 }
 
-int main()
+static void create_folders(void)
 {
+    static const struct folder_t folders[] = {
+        { "/proc", 0644 },
+        { "/sys", 0444 },
+        { "/etc", 0644 }
+    };
+    int i;
+    int res;
+
+    for (i = 0; i < membersof(folders); i++) {
+        res = mkdir(folders[i].path_p, folders[i].mode);
+
+        if (res != 0) {
+            ml_error("Failed to create '%s'", folders[i].path_p);
+        }
+    }
+}
+
+static void create_files(void)
+{
+    FILE *file_p;
+
     ml_mount("none", "/proc", "proc", 0, NULL);
     ml_mount("none", "/sys", "sysfs", 0, NULL);
 
-    ml_print_uptime();
+    ml_mknod("/dev/urandom", S_IFCHR | 0644, makedev(1, 9));
+    ml_mknod("/dev/kmsg", S_IFCHR | 0644, makedev(1, 11));
 
-    curl_global_init(CURL_GLOBAL_DEFAULT);
+    file_p = fopen("/etc/resolv.conf", "w");
 
+    if (file_p != NULL) {
+        fwrite("nameserver 8.8.4.4\n", 19, 1, file_p);
+        fclose(file_p);
+    }
+}
+
+int main()
+{
     ml_init();
+    create_folders();
+    create_files();
+    ml_print_uptime();
+    curl_global_init(CURL_GLOBAL_DEFAULT);
     ml_shell_init();
     ml_shell_register_command("http_get", "HTTP GET.", command_http_get);
+    ml_shell_register_command("ntp_sync", "NTP time sync.", command_ntp_sync);
     ml_network_init();
     ml_shell_start();
     ml_network_interface_up("eth0");

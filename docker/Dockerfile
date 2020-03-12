@@ -29,11 +29,14 @@ RUN apt-get update && \
     libusb-1.0-0-dev \
     uuid-dev \
     libssl-dev \
-    libpkcs11-helper1-dev
+    libpkcs11-helper1-dev \
+    sudo
 
 COPY punchboot punchboot
 RUN make -C punchboot/src/tools/punchboot all install GIT_VERSION=monolinux-jiffy
 RUN make -C punchboot/src/tools/pbimage all install GIT_VERSION=monolinux-jiffy
 RUN rm -rf punchboot
+
+RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 
 ENV HOSTNAME=monolinux-jiffy

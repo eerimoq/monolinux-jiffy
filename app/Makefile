@@ -1,19 +1,18 @@
 JIFFY_DTB = $(LINUX_SRC)/arch/arm/boot/dts/jiffy.dtb
 AUTH_COOKIE ?=
+PACKAGES += curl
+PACKAGES += heatshrink
+PACKAGES += xz
+PACKAGES += detools
+PACKAGES += mbedtls
+PACKAGES += zlib
+PACKAGES += monolinux-c-library
 
 default:
 	$(MAKE) all
 	$(MAKE) jiffy.pbi
 	$(MAKE) upload
 
-include $(ML_ROOT)/make/common.mk
-include $(ML_ROOT)/make/packages/curl.mk
-include $(ML_ROOT)/make/packages/heatshrink.mk
-include $(ML_ROOT)/make/packages/xz.mk
-include $(ML_ROOT)/make/packages/detools.mk
-include $(ML_ROOT)/make/packages/mbedtls.mk
-include $(ML_ROOT)/make/packages/zlib.mk
-include $(ML_ROOT)/make/packages/monolinux-c-library.mk
 include $(ML_ROOT)/make/app.mk
 
 jiffy.pbi: $(JIFFY_DTB) $(LINUX_SRC)/arch/arm/boot/zImage $(INITRAMFS)

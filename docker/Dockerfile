@@ -37,6 +37,8 @@ RUN make -C punchboot/src/tools/punchboot all install GIT_VERSION=monolinux-jiff
 RUN make -C punchboot/src/tools/pbimage all install GIT_VERSION=monolinux-jiffy
 RUN rm -rf punchboot
 
+COPY uuu /usr/bin
+
 RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 
 ENV HOSTNAME=monolinux-jiffy

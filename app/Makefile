@@ -1,5 +1,6 @@
 JIFFY_DTB = $(LINUX_SRC)/arch/arm/boot/dts/jiffy.dtb
 JIFFY_AUTH_COOKIE ?= jiffy_auth_cookie
+BZIMAGE ?= $(LINUX_SRC)/arch/arm/boot/zImage
 PACKAGES += curl
 PACKAGES += heatshrink
 PACKAGES += xz
@@ -15,7 +16,7 @@ default:
 
 include $(ML_ROOT)/make/app.mk
 
-jiffy.pbi: $(JIFFY_DTB) $(LINUX_SRC)/arch/arm/boot/zImage $(INITRAMFS)
+jiffy.pbi: $(JIFFY_DTB) $(BZIMAGE) $(INITRAMFS)
 	pbimage jiffy.pbc
 
 upload:

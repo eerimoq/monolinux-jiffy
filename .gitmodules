@@ -18,7 +18,7 @@
 	url = https://github.com/madler/zlib
 [submodule "3pp/linux"]
 	path = 3pp/linux
-	url = https://github.com/gregkh/linux
+	url = https://github.com/eerimoq/linux
 [submodule "3pp/monolinux"]
 	path = 3pp/monolinux
 	url = https://github.com/eerimoq/monolinux

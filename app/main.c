@@ -53,7 +53,7 @@ static void http_get(const char *url_p)
 static int command_http_get(int argc, const char *argv[])
 {
     if (argc != 2) {
-        printf("http_get <url>\n");
+        printf("Usage: http_get <url>\n");
 
         return (-1);
     }

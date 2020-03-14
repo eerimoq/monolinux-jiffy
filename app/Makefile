@@ -19,6 +19,8 @@ include $(ML_ROOT)/make/app.mk
 jiffy.pbi: $(JIFFY_DTB) $(BZIMAGE) $(INITRAMFS)
 	pbimage jiffy.pbc
 
-upload:
+authenticate:
 	punchboot dev -a -s secp256r1:sha256 -n 0 -f $(JIFFY_AUTH_COOKIE)
+
+upload: authenticate
 	punchboot boot -x -f jiffy.pbi

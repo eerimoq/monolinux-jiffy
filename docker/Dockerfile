@@ -14,6 +14,7 @@ RUN apt-get update && \
     bison \
     bc \
     python3 \
+    python3-pip \
     git \
     gitk \
     libelf-dev \
@@ -30,7 +31,10 @@ RUN apt-get update && \
     uuid-dev \
     libssl-dev \
     libpkcs11-helper1-dev \
-    sudo
+    sudo \
+    u-boot-tools \
+    locales \
+    xxd
 
 COPY punchboot punchboot
 RUN make -C punchboot/src/tools/punchboot all install GIT_VERSION=monolinux-jiffy
@@ -38,6 +42,13 @@ RUN make -C punchboot/src/tools/pbimage all install GIT_VERSION=monolinux-jiffy
 RUN rm -rf punchboot
 
 COPY uuu /usr/bin
+
+RUN pip3 install \
+    ecdsa \
+    imx
+
+ENV LC_ALL C.UTF-8
+ENV LANG C.UTF-8
 
 RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 

@@ -5,9 +5,9 @@ A Monolinux distro for the Jiffy board!
 
 Monolinux: https://github.com/eerimoq/monolinux
 
-Bootloader: https://github.com/jonpe960/punchboot
+Bootloader: https://github.com/jonasblixt/punchboot
 
-Hardware: https://github.com/jonpe960/jiffy
+Hardware: https://github.com/jonasblixt/jiffy
 
 Build and run
 =============

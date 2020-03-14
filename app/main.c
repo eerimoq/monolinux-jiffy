@@ -142,7 +142,7 @@ static void create_folders(void)
         res = mkdir(folders[i].path_p, folders[i].mode);
 
         if (res != 0) {
-            ml_error("Failed to create '%s'", folders[i].path_p);
+            fprintf(stderr, "Failed to create '%s'", folders[i].path_p);
         }
     }
 }
@@ -176,9 +176,9 @@ static void create_files(void)
 
 int main()
 {
-    ml_init();
     create_folders();
     create_files();
+    ml_init();
     ml_print_uptime();
     curl_global_init(CURL_GLOBAL_DEFAULT);
     ml_shell_init();

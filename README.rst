@@ -12,6 +12,8 @@ Hardware: https://github.com/jonasblixt/jiffy
 Build and run
 =============
 
+This requires that punchboot is running and ready to execute commands.
+
 .. code-block:: shell
 
    $ ./rundocker.sh

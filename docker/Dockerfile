@@ -39,6 +39,9 @@ RUN apt-get update && \
 COPY punchboot punchboot
 RUN make -C punchboot/src/tools/punchboot all install GIT_VERSION=monolinux-jiffy
 RUN make -C punchboot/src/tools/pbimage all install GIT_VERSION=monolinux-jiffy
+RUN make -C punchboot/src/tools/imxcst/src GIT_VERSION=monolinux-jiffy
+RUN install -m 644 punchboot/src/tools/imxcst/src/build-x86_64-linux-gnu/cst /usr/bin
+RUN chmod +x /usr/bin/cst
 RUN rm -rf punchboot
 
 COPY uuu /usr/bin

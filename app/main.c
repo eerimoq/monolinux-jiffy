@@ -8,7 +8,6 @@
 #include <curl/curl.h>
 #include <heatshrink_encoder.h>
 #include <heatshrink_decoder.h>
-#include <lzma.h>
 #include <detools.h>
 #include "ml/ml.h"
 
@@ -92,22 +91,6 @@ static void heatshrink_test(void)
     heatshrink_decoder_reset(&hsd);
 
     printf("Heatshrink encode and decode done.\n");
-}
-
-static void lzma_test(void)
-{
-    lzma_ret ret;
-    lzma_stream stream;
-
-    memset(&stream, 0, sizeof(stream));
-
-    ret = lzma_alone_decoder(&stream, UINT64_MAX);
-
-    if (ret != LZMA_OK) {
-        printf("LZMA decoder init failed.\n");
-    } else {
-        printf("LZMA decoder init successful.\n");
-    }
 }
 
 static void detools_test(void)
@@ -199,7 +182,6 @@ int main()
 #endif
 
     heatshrink_test();
-    lzma_test();
     detools_test();
 
     while (true) {

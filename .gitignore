@@ -1,6 +1,7 @@
 build
-jiffy.pbi
+jiffy.bpak
 arm-linux-musleabi-cross
 sources/*.tar.gz
 sources/*.tar.xz
 docker/punchboot
+docker/bpak

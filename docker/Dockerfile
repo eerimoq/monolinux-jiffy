@@ -36,12 +36,19 @@ RUN apt-get update && \
     locales \
     xxd
 
+COPY bpak bpak
+RUN cd bpak && autoreconf -fi && ./configure && make && make install
+RUN ldconfig
+RUN rm -rf bpak
+
 COPY punchboot punchboot
-RUN make -C punchboot/src/tools/punchboot all install GIT_VERSION=monolinux-jiffy
-RUN make -C punchboot/src/tools/pbimage all install GIT_VERSION=monolinux-jiffy
+RUN make -C punchboot/src/tools/punchboot/src GIT_VERSION=monolinux-jiffy
+RUN make -C punchboot/src/tools/punchboot/src install GIT_VERSION=monolinux-jiffy
 RUN make -C punchboot/src/tools/imxcst/src GIT_VERSION=monolinux-jiffy
 RUN install -m 644 punchboot/src/tools/imxcst/src/build-x86_64-linux-gnu/cst /usr/bin
 RUN chmod +x /usr/bin/cst
+RUN install -m 644 punchboot/src/tools/createtoken.sh /usr/bin
+RUN chmod +x /usr/bin/createtoken.sh
 RUN rm -rf punchboot
 
 COPY uuu /usr/bin

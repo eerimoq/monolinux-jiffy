@@ -172,7 +172,10 @@ int main()
     ml_network_interface_up("eth0");
 
 # if 0
-    ml_network_interface_configure("eth0", "192.168.0.100", "255.255.255.0");
+    ml_network_interface_configure("eth0",
+                                   "192.168.0.100",
+                                   "255.255.255.0",
+                                   1500);
     ml_network_interface_add_route("eth0", "192.168.0.1");
 #else
     struct ml_dhcp_client_t dhcp_client;

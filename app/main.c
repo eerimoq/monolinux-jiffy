@@ -62,24 +62,6 @@ static int command_http_get(int argc, const char *argv[])
     return (0);
 }
 
-static int command_ntp_sync(int argc, const char *argv[])
-{
-    int res;
-    const char *server_p;
-
-    if (argc == 1) {
-        server_p = "0.se.pool.ntp.org";
-    } else if (argc == 2) {
-        server_p = argv[1];
-    } else {
-        printf("Usage: ntp_sync [<server>]\n");
-
-        return (-1);
-    }
-
-    return (ml_ntp_client_sync(server_p));
-}
-
 static void heatshrink_test(void)
 {
     heatshrink_encoder hse;
@@ -166,7 +148,6 @@ int main()
     curl_global_init(CURL_GLOBAL_DEFAULT);
     ml_shell_init();
     ml_shell_register_command("http_get", "HTTP GET.", command_http_get);
-    ml_shell_register_command("ntp_sync", "NTP time sync.", command_ntp_sync);
     ml_network_init();
     ml_shell_start();
     ml_network_interface_up("eth0");

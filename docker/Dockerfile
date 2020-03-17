@@ -36,7 +36,8 @@ RUN apt-get update && \
     u-boot-tools \
     locales \
     xxd \
-    tio
+    tio \
+    liblz4-tool
 
 COPY bpak bpak
 RUN cd bpak && autoreconf -fi && ./configure && make && make install

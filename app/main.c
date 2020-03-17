@@ -5,6 +5,8 @@
 #include <stdint.h>
 #include <unistd.h>
 #include <string.h>
+#include <linux/gpio.h>
+#include <sys/ioctl.h>
 #include <curl/curl.h>
 #include <heatshrink_encoder.h>
 #include <heatshrink_decoder.h>
@@ -130,6 +132,7 @@ static void create_files(void)
     ml_mknod("/dev/mmcblk0p6", S_IFBLK | 0644, makedev(179, 6));
     ml_mknod("/dev/mmcblk0boot0", S_IFBLK | 0644, makedev(179, 16));
     ml_mknod("/dev/mmcblk0boot1", S_IFBLK | 0644, makedev(179, 32));
+    ml_mknod("/dev/gpiochip1", S_IFCHR | 0644, makedev(254, 1));
 
     file_p = fopen("/etc/resolv.conf", "w");
 
@@ -139,11 +142,50 @@ static void create_files(void)
     }
 }
 
+static void set_gpio1_io04_low(void)
+{
+    int fd;
+    int res;
+    struct gpiohandle_request request;
+    struct gpiohandle_data values;
+
+    fd = open("/dev/gpiochip1", O_RDONLY);
+
+    if (fd == -1) {
+        perror("failed to open /dev/gpiochip1");
+
+        return;
+    }
+
+    memset(&request, 0, sizeof(request));
+    request.lineoffsets[0] = 3;
+    request.flags = GPIOHANDLE_REQUEST_OUTPUT;
+    request.lines = 1;
+    res = ioctl(fd, GPIO_GET_LINEHANDLE_IOCTL, &request);
+
+    if (res != 0) {
+        perror("failed to get GPIO at offset 3");
+        close(fd);
+
+        return;
+    }
+
+    values.values[0] = 0;
+    res = ioctl(request.fd, GPIOHANDLE_SET_LINE_VALUES_IOCTL, &values);
+
+    if (res != 0) {
+        perror("failed to set GPIO high");
+    }
+
+    close(fd);
+}
+
 int main()
 {
     create_folders();
     create_files();
     ml_init();
+    set_gpio1_io04_low();
     ml_print_uptime();
     curl_global_init(CURL_GLOBAL_DEFAULT);
     ml_shell_init();

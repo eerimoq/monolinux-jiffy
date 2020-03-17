@@ -15,6 +15,7 @@ RUN apt-get update && \
     bc \
     python3 \
     python3-pip \
+    bpython3 \
     git \
     gitk \
     libelf-dev \
@@ -34,7 +35,8 @@ RUN apt-get update && \
     sudo \
     u-boot-tools \
     locales \
-    xxd
+    xxd \
+    tio
 
 COPY bpak bpak
 RUN cd bpak && autoreconf -fi && ./configure && make && make install

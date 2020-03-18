@@ -28,3 +28,6 @@ authenticate-token:
 
 upload: authenticate
 	punchboot boot -x -f jiffy.bpak
+
+upload-emmc: authenticate
+	punchboot part -w -n 0 -f jiffy.bpak

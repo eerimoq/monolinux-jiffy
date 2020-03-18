@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <errno.h>
 #include <stdlib.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -62,6 +63,29 @@ static int command_http_get(int argc, const char *argv[])
     http_get(argv[1]);
 
     return (0);
+}
+
+static int command_punchboot(int argc, const char *argv[])
+{
+    int res;
+
+    if (argc < 2) {
+        printf("Usage: punchboot config -w\n");
+
+        return (-EINVAL);
+    }
+
+    if (strcmp(argv[1], "config") == 0) {
+        res = ml_file_write_string("/dev/mmcblk0p5", "Erik!");
+
+        if (res == 0) {
+            res = ml_file_write_string("/dev/mmcblk0p6", "Erik!");
+        }
+    } else {
+        res = -EINVAL;
+    }
+
+    return (res);
 }
 
 static void heatshrink_test(void)
@@ -190,6 +214,9 @@ int main()
     curl_global_init(CURL_GLOBAL_DEFAULT);
     ml_shell_init();
     ml_shell_register_command("http_get", "HTTP GET.", command_http_get);
+    ml_shell_register_command("punchboot",
+                              "Punchboot control.",
+                              command_punchboot);
     ml_network_init();
     ml_shell_start();
     ml_network_interface_up("eth0");

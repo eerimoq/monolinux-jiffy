@@ -145,6 +145,8 @@ static void create_files(void)
     ml_mount("none", "/proc", "proc", 0, NULL);
     ml_mount("none", "/sys", "sysfs", 0, NULL);
 
+    ml_mknod("/dev/null", S_IFCHR | 0644, makedev(1, 3));
+    ml_mknod("/dev/zero", S_IFCHR | 0644, makedev(1, 5));
     ml_mknod("/dev/urandom", S_IFCHR | 0644, makedev(1, 9));
     ml_mknod("/dev/kmsg", S_IFCHR | 0644, makedev(1, 11));
     ml_mknod("/dev/mmcblk0", S_IFBLK | 0644, makedev(179, 0));

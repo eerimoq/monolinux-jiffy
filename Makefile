@@ -12,6 +12,10 @@ punchboot-build-timing-report:
 	$(MAKE) -C 3pp/punchboot/src clean BOARD=jiffy
 	$(MAKE) -C 3pp/punchboot/src BOARD=jiffy TIMING_REPORT=1
 
+punchboot-build-quiet:
+	$(MAKE) -C 3pp/punchboot/src clean BOARD=jiffy
+	$(MAKE) -C 3pp/punchboot/src BOARD=jiffy LOGLEVEL=0
+
 punchboot-upload:
 	$(MAKE) -C app authenticate
 	punchboot boot -w -f 3pp/punchboot/src/build-jiffy/pb_signed.imx

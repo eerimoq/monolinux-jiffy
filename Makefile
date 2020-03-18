@@ -5,16 +5,16 @@ clean:
 	$(MAKE) -C app clean
 
 punchboot-build:
-	$(MAKE) -C 3pp/punchboot/src clean BOARD=jiffy
 	$(MAKE) -C 3pp/punchboot/src BOARD=jiffy LOGLEVEL=3
 
 punchboot-build-timing-report:
-	$(MAKE) -C 3pp/punchboot/src clean BOARD=jiffy
 	$(MAKE) -C 3pp/punchboot/src BOARD=jiffy TIMING_REPORT=1
 
 punchboot-build-quiet:
-	$(MAKE) -C 3pp/punchboot/src clean BOARD=jiffy
 	$(MAKE) -C 3pp/punchboot/src BOARD=jiffy LOGLEVEL=0
+
+punchboot-clean:
+	$(MAKE) -C 3pp/punchboot/src clean BOARD=jiffy
 
 punchboot-upload:
 	$(MAKE) -C app authenticate

@@ -9,6 +9,7 @@ PACKAGES += detools
 PACKAGES += mbedtls
 PACKAGES += zlib
 PACKAGES += monolinux-c-library
+INC += $(ML_SOURCES)/punchboot/src/include
 
 default:
 	$(MAKE) all

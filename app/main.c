@@ -13,6 +13,7 @@
 #include <heatshrink_decoder.h>
 #include <detools.h>
 #include "ml/ml.h"
+#include "pb/config.h"
 
 struct folder_t {
     const char *path_p;
@@ -65,22 +66,73 @@ static int command_http_get(int argc, const char *argv[])
     return (0);
 }
 
-static int command_punchboot(int argc, const char *argv[])
+static int command_pbconfig_wipe(void)
 {
     int res;
 
-    if (argc < 2) {
-        printf("Usage: punchboot config -w\n");
+    res = ml_dd("/dev/zero", "/dev/mmcblk0p5", 512, 512);
+
+    if (res == 0) {
+        res = ml_dd("/dev/zero", "/dev/mmcblk0p6", 512, 512);
+    }
+
+    return (res);
+}
+
+static const char *is_bit_set(uint32_t value, uint32_t bit)
+{
+    return (ml_bool_str((value & bit) == bit));
+}
+
+static void command_pbconfig_print_system(struct config *config_p,
+                                          const char *system_p,
+                                          uint32_t enabled_bit,
+                                          uint32_t verified_bit)
+{
+    printf("System %s:\n", system_p);
+    printf("  Enabled:  %s\n", is_bit_set(config_p->enable, enabled_bit));
+    printf("  Verified: %s\n", is_bit_set(config_p->verified, verified_bit));
+}
+
+static int command_pbconfig_print(void)
+{
+    struct config config;
+    int res;
+
+    res = ml_file_read("/dev/mmcblk0p5", &config, sizeof(config));
+
+    if (res != 0) {
+        printf("Failed to read config.\n");
+
+        return (res);
+    }
+
+    command_pbconfig_print_system(&config,
+                                  "A",
+                                  PB_CONFIG_A_ENABLED,
+                                  PB_CONFIG_A_VERIFIED);
+    command_pbconfig_print_system(&config,
+                                  "B",
+                                  PB_CONFIG_B_ENABLED,
+                                  PB_CONFIG_B_VERIFIED);
+
+    return (0);
+}
+
+static int command_pbconfig(int argc, const char *argv[])
+{
+    int res;
+
+    if (argc != 2) {
+        printf("Usage: pbconfig {wipe,print}\n");
 
         return (-EINVAL);
     }
 
-    if (strcmp(argv[1], "config") == 0) {
-        res = ml_dd("/dev/zero", "/dev/mmcblk0p5", 512, 512);
-
-        if (res == 0) {
-            res = ml_dd("/dev/zero", "/dev/mmcblk0p6", 512, 512);
-        }
+    if (strcmp(argv[1], "wipe") == 0) {
+        res = command_pbconfig_wipe();
+    } else if (strcmp(argv[1], "print") == 0) {
+        res = command_pbconfig_print();
     } else {
         res = -EINVAL;
     }
@@ -216,9 +268,9 @@ int main()
     curl_global_init(CURL_GLOBAL_DEFAULT);
     ml_shell_init();
     ml_shell_register_command("http_get", "HTTP GET.", command_http_get);
-    ml_shell_register_command("punchboot",
-                              "Punchboot control.",
-                              command_punchboot);
+    ml_shell_register_command("pbconfig",
+                              "Punchboot config control.",
+                              command_pbconfig);
     ml_network_init();
     ml_shell_start();
     ml_network_interface_up("eth0");

@@ -76,10 +76,10 @@ static int command_punchboot(int argc, const char *argv[])
     }
 
     if (strcmp(argv[1], "config") == 0) {
-        res = ml_file_write_string("/dev/mmcblk0p5", "Erik!");
+        res = ml_dd("/dev/zero", "/dev/mmcblk0p5", 512, 512);
 
         if (res == 0) {
-            res = ml_file_write_string("/dev/mmcblk0p6", "Erik!");
+            res = ml_dd("/dev/zero", "/dev/mmcblk0p6", 512, 512);
         }
     } else {
         res = -EINVAL;

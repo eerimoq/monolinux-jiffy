@@ -192,8 +192,6 @@ static void create_folders(void)
 
 static void create_files(void)
 {
-    FILE *file_p;
-
     ml_mount("none", "/proc", "proc", 0, NULL);
     ml_mount("none", "/sys", "sysfs", 0, NULL);
 
@@ -212,12 +210,7 @@ static void create_files(void)
     ml_mknod("/dev/mmcblk0boot1", S_IFBLK | 0644, makedev(179, 32));
     ml_mknod("/dev/gpiochip1", S_IFCHR | 0644, makedev(254, 1));
 
-    file_p = fopen("/etc/resolv.conf", "w");
-
-    if (file_p != NULL) {
-        fwrite("nameserver 8.8.4.4\n", 19, 1, file_p);
-        fclose(file_p);
-    }
+    ml_file_write_string("/etc/resolv.conf", "nameserver 8.8.4.4\n");
 }
 
 static void set_gpio1_io04_low(void)

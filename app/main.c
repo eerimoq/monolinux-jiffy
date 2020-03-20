@@ -208,12 +208,33 @@ static void create_files(void)
     ml_mknod("/dev/mmcblk0p6", S_IFBLK | 0644, makedev(179, 6));
     ml_mknod("/dev/mmcblk0boot0", S_IFBLK | 0644, makedev(179, 16));
     ml_mknod("/dev/mmcblk0boot1", S_IFBLK | 0644, makedev(179, 32));
-    ml_mknod("/dev/gpiochip1", S_IFCHR | 0644, makedev(254, 1));
+    ml_mknod("/dev/gpiochip1", S_IFCHR | 0644, makedev(254, 0));
 
     ml_file_write_string("/etc/resolv.conf", "nameserver 8.8.4.4\n");
 }
 
-static void set_gpio1_io04_low(void)
+static void insert_modules(void)
+{
+    int res;
+    int i;
+    static const char *modules[] = {
+        "root/mmc_core.ko",
+        "root/mmc_block.ko",
+        "root/sdhci.ko",
+        "root/sdhci-pltfm.ko",
+        "root/sdhci-esdhc-imx.ko"
+    };
+
+    for (i = 0; i < membersof(modules); i++) {
+        res = ml_insert_module(modules[i], "");
+
+        if (res != 0) {
+            printf("Failed to insert '%s'.\n", modules[i]);
+        }
+    }
+}
+
+static void set_gpio1_io00_low(void)
 {
     int fd;
     int res;
@@ -229,13 +250,13 @@ static void set_gpio1_io04_low(void)
     }
 
     memset(&request, 0, sizeof(request));
-    request.lineoffsets[0] = 3;
+    request.lineoffsets[0] = 0;
     request.flags = GPIOHANDLE_REQUEST_OUTPUT;
     request.lines = 1;
     res = ioctl(fd, GPIO_GET_LINEHANDLE_IOCTL, &request);
 
     if (res != 0) {
-        perror("failed to get GPIO at offset 3");
+        perror("failed to get GPIO at offset 0");
         close(fd);
 
         return;
@@ -245,7 +266,7 @@ static void set_gpio1_io04_low(void)
     res = ioctl(request.fd, GPIOHANDLE_SET_LINE_VALUES_IOCTL, &values);
 
     if (res != 0) {
-        perror("failed to set GPIO high");
+        perror("failed to set GPIO low");
     }
 
     close(fd);
@@ -256,8 +277,9 @@ int main()
     create_folders();
     create_files();
     ml_init();
-    set_gpio1_io04_low();
+    set_gpio1_io00_low();
     ml_print_uptime();
+    insert_modules();
     curl_global_init(CURL_GLOBAL_DEFAULT);
     ml_shell_init();
     ml_shell_register_command("http_get", "HTTP GET.", command_http_get);

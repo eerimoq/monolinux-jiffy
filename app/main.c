@@ -209,6 +209,7 @@ static void create_files(void)
     ml_mknod("/dev/mmcblk0boot0", S_IFBLK | 0644, makedev(179, 16));
     ml_mknod("/dev/mmcblk0boot1", S_IFBLK | 0644, makedev(179, 32));
     ml_mknod("/dev/gpiochip1", S_IFCHR | 0644, makedev(254, 0));
+    ml_mknod("/dev/i2c3", S_IFCHR | 0644, makedev(89, 2));
 
     ml_file_write_string("/etc/resolv.conf", "nameserver 8.8.4.4\n");
 }
@@ -222,7 +223,9 @@ static void insert_modules(void)
         "root/mmc_block.ko",
         "root/sdhci.ko",
         "root/sdhci-pltfm.ko",
-        "root/sdhci-esdhc-imx.ko"
+        "root/sdhci-esdhc-imx.ko",
+        "root/i2c-imx.ko",
+        "root/i2c-dev.ko"
     };
 
     for (i = 0; i < membersof(modules); i++) {

@@ -66,7 +66,7 @@ static int command_http_get(int argc, const char *argv[])
     return (0);
 }
 
-static int command_pbconfig_wipe(void)
+static int command_pbconfig_reset(void)
 {
     int res;
 
@@ -94,7 +94,7 @@ static void command_pbconfig_print_system(struct config *config_p,
     printf("  Verified: %s\n", is_bit_set(config_p->verified, verified_bit));
 }
 
-static int command_pbconfig_print(void)
+static int command_pbconfig_status(void)
 {
     struct config config;
     int res;
@@ -124,15 +124,15 @@ static int command_pbconfig(int argc, const char *argv[])
     int res;
 
     if (argc != 2) {
-        printf("Usage: pbconfig {wipe,print}\n");
+        printf("Usage: pbconfig {reset,status}\n");
 
         return (-EINVAL);
     }
 
-    if (strcmp(argv[1], "wipe") == 0) {
-        res = command_pbconfig_wipe();
-    } else if (strcmp(argv[1], "print") == 0) {
-        res = command_pbconfig_print();
+    if (strcmp(argv[1], "reset") == 0) {
+        res = command_pbconfig_reset();
+    } else if (strcmp(argv[1], "status") == 0) {
+        res = command_pbconfig_status();
     } else {
         res = -EINVAL;
     }

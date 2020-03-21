@@ -9,9 +9,6 @@
 #include <linux/gpio.h>
 #include <sys/ioctl.h>
 #include <curl/curl.h>
-#include <heatshrink_encoder.h>
-#include <heatshrink_decoder.h>
-#include <detools.h>
 #include "ml/ml.h"
 #include "pb/config.h"
 
@@ -138,37 +135,6 @@ static int command_pbconfig(int argc, const char *argv[])
     }
 
     return (res);
-}
-
-static void heatshrink_test(void)
-{
-    heatshrink_encoder hse;
-    heatshrink_decoder hsd;
-
-    printf("Heatshrink encode and decode start.\n");
-
-    heatshrink_encoder_reset(&hse);
-    heatshrink_decoder_reset(&hsd);
-
-    printf("Heatshrink encode and decode done.\n");
-}
-
-static void detools_test(void)
-{
-    int res;
-
-    printf("Applying patch 'patch' to 'from' to create 'to'.\n");
-
-    res = detools_apply_patch_filenames("from", "patch", "to");
-
-    if (res >= 0) {
-        printf("detools: OK!\n");
-    } else {
-        res *= -1;
-        printf("error: detools: %s (error code %d)\n",
-               detools_error_as_string(res),
-               res);
-    }
 }
 
 static void create_folders(void)
@@ -306,8 +272,6 @@ int main()
     ml_dhcp_client_start(&dhcp_client);
 #endif
 
-    heatshrink_test();
-    detools_test();
 
     while (true) {
         sleep(10);

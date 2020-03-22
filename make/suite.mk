@@ -64,7 +64,9 @@ $(BUILD)/nala_mocks.ld: $(TESTS)
 	cat $(TESTS) > $(TESTS_C)
 	$(CC) $(INC:%=-I%) \
 	    -D_GNU_SOURCE=1 -DCURL_DISABLE_TYPECHECK -DNALA_GENERATE_MOCKS \
-	    -E $(TESTS_C) | $(NALA) generate_mocks -o $(BUILD)
+	    -E $(TESTS_C) | $(NALA) generate_mocks \
+					$(NO_IMPLEMENTATION:%=-n %) \
+					-o $(BUILD)
 	touch $@
 
 coverage:

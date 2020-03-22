@@ -5,3 +5,4 @@ sources/*.tar.gz
 sources/*.tar.xz
 docker/punchboot
 docker/bpak
+report.json

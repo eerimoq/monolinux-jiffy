@@ -10,132 +10,13 @@
 #include <sys/ioctl.h>
 #include <curl/curl.h>
 #include "ml/ml.h"
-#include "pb/config.h"
+#include "jiffy/pbconfig.h"
+#include "jiffy/http_get.h"
 
 struct folder_t {
     const char *path_p;
     int mode;
 };
-
-static void http_get(const char *url_p)
-{
-    CURL *curl_p;
-    long response_code;
-    int res;
-
-    printf("\n>>> HTTP GET %s. >>>\n", url_p);
-
-    curl_p = curl_easy_init();
-
-    if (curl_p) {
-        curl_easy_setopt(curl_p, CURLOPT_URL, url_p);
-        curl_easy_setopt(curl_p, CURLOPT_WRITEDATA, stdout);
-
-        /* WARNING: Makes the connection unsecure! */
-        curl_easy_setopt(curl_p, CURLOPT_SSL_VERIFYPEER, 0);
-        curl_easy_setopt(curl_p, CURLOPT_SSL_VERIFYHOST, 0);
-
-        res = curl_easy_perform(curl_p);
-
-        if (res == CURLE_OK) {
-            curl_easy_getinfo(curl_p, CURLINFO_RESPONSE_CODE, &response_code);
-            printf("<<< HTTP GET response code %ld. <<<\n", response_code);
-        } else {
-            printf("<<< HTTP GET CURL error code %d: %s. <<<\n",
-                   res,
-                   curl_easy_strerror(res));
-        }
-
-        curl_easy_cleanup(curl_p);
-    }
-}
-
-static int command_http_get(int argc, const char *argv[])
-{
-    if (argc != 2) {
-        printf("Usage: http_get <url>\n");
-
-        return (-1);
-    }
-
-    http_get(argv[1]);
-
-    return (0);
-}
-
-static int command_pbconfig_reset(void)
-{
-    int res;
-
-    res = ml_dd("/dev/zero", "/dev/mmcblk0p5", 512, 512);
-
-    if (res == 0) {
-        res = ml_dd("/dev/zero", "/dev/mmcblk0p6", 512, 512);
-    }
-
-    return (res);
-}
-
-static const char *is_bit_set(uint32_t value, uint32_t bit)
-{
-    return (ml_bool_str((value & bit) == bit));
-}
-
-static void command_pbconfig_print_system(struct config *config_p,
-                                          const char *system_p,
-                                          uint32_t enabled_bit,
-                                          uint32_t verified_bit)
-{
-    printf("System %s:\n", system_p);
-    printf("  Enabled:  %s\n", is_bit_set(config_p->enable, enabled_bit));
-    printf("  Verified: %s\n", is_bit_set(config_p->verified, verified_bit));
-}
-
-static int command_pbconfig_status(void)
-{
-    struct config config;
-    int res;
-
-    res = ml_file_read("/dev/mmcblk0p5", &config, sizeof(config));
-
-    if (res != 0) {
-        printf("Failed to read config.\n");
-
-        return (res);
-    }
-
-    command_pbconfig_print_system(&config,
-                                  "A",
-                                  PB_CONFIG_A_ENABLED,
-                                  PB_CONFIG_A_VERIFIED);
-    command_pbconfig_print_system(&config,
-                                  "B",
-                                  PB_CONFIG_B_ENABLED,
-                                  PB_CONFIG_B_VERIFIED);
-
-    return (0);
-}
-
-static int command_pbconfig(int argc, const char *argv[])
-{
-    int res;
-
-    if (argc != 2) {
-        printf("Usage: pbconfig {reset,status}\n");
-
-        return (-EINVAL);
-    }
-
-    if (strcmp(argv[1], "reset") == 0) {
-        res = command_pbconfig_reset();
-    } else if (strcmp(argv[1], "status") == 0) {
-        res = command_pbconfig_status();
-    } else {
-        res = -EINVAL;
-    }
-
-    return (res);
-}
 
 static void create_folders(void)
 {
@@ -220,7 +101,6 @@ static void set_gpio1_io00_low(void)
 
 int main()
 {
-    printf("Entering main.\n");
     create_folders();
     create_files();
     ml_init();
@@ -228,10 +108,8 @@ int main()
     ml_print_uptime();
     curl_global_init(CURL_GLOBAL_DEFAULT);
     ml_shell_init();
-    ml_shell_register_command("http_get", "HTTP GET.", command_http_get);
-    ml_shell_register_command("pbconfig",
-                              "Punchboot config control.",
-                              command_pbconfig);
+    http_get_module_init();
+    pbconfig_module_init();
     ml_network_init();
     ml_shell_start();
     ml_network_interface_up("eth0");

@@ -3,6 +3,10 @@ default:
 
 clean:
 	$(MAKE) -C app clean
+	$(MAKE) -C tst clean
+
+test:
+	$(MAKE) -C tst
 
 upload:
 	$(MAKE) -C app upload

@@ -58,7 +58,8 @@ COPY uuu /usr/bin
 
 RUN pip3 install \
     ecdsa \
-    imx
+    imx \
+    nala==0.104.1
 
 ENV LC_ALL C.UTF-8
 ENV LANG C.UTF-8

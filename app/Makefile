@@ -9,6 +9,9 @@ PACKAGES += mbedtls
 PACKAGES += zlib
 PACKAGES += monolinux-c-library
 INC += $(ML_SOURCES)/punchboot/src/include
+INC += ../include
+SRC += ../src/http_get.c
+SRC += ../src/pbconfig.c
 
 default:
 	$(MAKE) all

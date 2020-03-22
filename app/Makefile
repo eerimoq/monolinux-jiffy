@@ -11,13 +11,6 @@ PACKAGES += mbedtls
 PACKAGES += zlib
 PACKAGES += monolinux-c-library
 INC += $(ML_SOURCES)/punchboot/src/include
-INITRAMFS_FILES += build/linux/drivers/mmc/host/sdhci-esdhc-imx.ko
-INITRAMFS_FILES += build/linux/drivers/mmc/host/sdhci-pltfm.ko
-INITRAMFS_FILES += build/linux/drivers/mmc/host/sdhci.ko
-INITRAMFS_FILES += build/linux/drivers/mmc/core/mmc_core.ko
-INITRAMFS_FILES += build/linux/drivers/mmc/core/mmc_block.ko
-INITRAMFS_FILES += build/linux/drivers/i2c/busses/i2c-imx.ko
-INITRAMFS_FILES += build/linux/drivers/i2c/i2c-dev.ko
 
 default:
 	$(MAKE) all

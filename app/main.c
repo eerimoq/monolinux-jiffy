@@ -180,29 +180,6 @@ static void create_files(void)
     ml_file_write_string("/etc/resolv.conf", "nameserver 8.8.4.4\n");
 }
 
-static void insert_modules(void)
-{
-    int res;
-    int i;
-    static const char *modules[] = {
-        "root/mmc_core.ko",
-        "root/mmc_block.ko",
-        "root/sdhci.ko",
-        "root/sdhci-pltfm.ko",
-        "root/sdhci-esdhc-imx.ko",
-        "root/i2c-imx.ko",
-        "root/i2c-dev.ko"
-    };
-
-    for (i = 0; i < membersof(modules); i++) {
-        res = ml_insert_module(modules[i], "");
-
-        if (res != 0) {
-            printf("Failed to insert '%s'.\n", modules[i]);
-        }
-    }
-}
-
 static void set_gpio1_io00_low(void)
 {
     int fd;
@@ -243,12 +220,12 @@ static void set_gpio1_io00_low(void)
 
 int main()
 {
+    printf("Entering main.\n");
     create_folders();
     create_files();
     ml_init();
     set_gpio1_io00_low();
     ml_print_uptime();
-    insert_modules();
     curl_global_init(CURL_GLOBAL_DEFAULT);
     ml_shell_init();
     ml_shell_register_command("http_get", "HTTP GET.", command_http_get);

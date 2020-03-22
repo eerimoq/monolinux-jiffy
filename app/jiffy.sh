@@ -2,7 +2,7 @@
 
 set -e
 
-IMAGE=jiffy.bpak
+IMAGE=build/jiffy.bpak
 PKG_UUID=8df597ff-2cf5-42ea-b2b6-47c348721b75
 PKG_UNIQUE_ID=11111111-2222-3333-4444-555555555555
 

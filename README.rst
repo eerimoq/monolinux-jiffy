@@ -17,4 +17,4 @@ This requires that punchboot is running and ready to execute commands.
 .. code-block:: shell
 
    $ ./rundocker.sh
-   $ make -j4
+   $ make -s -j8 upload

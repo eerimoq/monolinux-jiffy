@@ -7,7 +7,7 @@ CFLAGS += -fsanitize=undefined
 endif
 CFLAGS += -coverage
 CFLAGS += -Wall -Wextra -std=gnu11
-CFLAGS += -g -Og
+CFLAGS += -g -O0
 CFLAGS += -DUNIT_TEST
 CFLAGS += -no-pie
 CFLAGS += -DCURL_DISABLE_TYPECHECK

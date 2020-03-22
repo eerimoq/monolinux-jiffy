@@ -1,3 +1,6 @@
+|buildstatus|_
+|codecov|_
+
 Monolinux Jiffy
 ===============
 
@@ -18,3 +21,9 @@ This requires that punchboot is running and ready to execute commands.
 
    $ ./rundocker.sh
    $ make -s -j8 upload
+
+.. |buildstatus| image:: https://travis-ci.org/eerimoq/monolinux-jiffy.svg
+.. _buildstatus: https://travis-ci.org/eerimoq/monolinux-jiffy
+
+.. |codecov| image:: https://codecov.io/gh/eerimoq/monolinux-jiffy/branch/master/graph/badge.svg
+.. _codecov: https://codecov.io/gh/eerimoq/monolinux-jiffy

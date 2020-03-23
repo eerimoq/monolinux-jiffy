@@ -64,18 +64,20 @@ static int command_pbconfig(int argc, const char *argv[])
 {
     int res;
 
-    if (argc != 2) {
-        printf("Usage: pbconfig {reset,status}\n");
+    res = -EINVAL;
 
-        return (-EINVAL);
+    if (argc == 2) {
+        if (strcmp(argv[1], "reset") == 0) {
+            res = command_pbconfig_reset();
+        } else if (strcmp(argv[1], "status") == 0) {
+            res = command_pbconfig_status();
+        } else {
+            res = -EINVAL;
+        }
     }
 
-    if (strcmp(argv[1], "reset") == 0) {
-        res = command_pbconfig_reset();
-    } else if (strcmp(argv[1], "status") == 0) {
-        res = command_pbconfig_status();
-    } else {
-        res = -EINVAL;
+    if (res != 0) {
+        printf("Usage: pbconfig {reset,status}\n");
     }
 
     return (res);

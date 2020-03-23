@@ -23,6 +23,24 @@ TEST(pbconfig_command_no_args_error)
     ASSERT_EQ(output, "Usage: pbconfig {reset,status}\n");
 }
 
+TEST(pbconfig_command_bad_subcommand)
+{
+    const char *argv[] = { "pbconfig", "foobar" };
+    struct nala_ml_shell_register_command_params_t *params_p;
+    int handle;
+
+    handle = ml_shell_register_command_mock_ignore_in_once();
+
+    pbconfig_module_init();
+
+    CAPTURE_OUTPUT(output, errput) {
+        params_p = ml_shell_register_command_mock_get_params_in(handle);
+        ASSERT_EQ(params_p->callback(2, &argv[0]), -EINVAL);
+    }
+
+    ASSERT_EQ(output, "Usage: pbconfig {reset,status}\n");
+}
+
 TEST(pbconfig_command_reset)
 {
     const char *argv[] = { "pbconfig", "reset" };

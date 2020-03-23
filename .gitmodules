@@ -31,3 +31,6 @@
 [submodule "3pp/bpak"]
 	path = 3pp/bpak
 	url = https://github.com/jonasblixt/bpak
+[submodule "3pp/dbg-macro"]
+	path = 3pp/dbg-macro
+	url = https://github.com/eerimoq/dbg-macro

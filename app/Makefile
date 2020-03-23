@@ -5,6 +5,7 @@ BOARD_UUID ?= 1145223f-f951-3d6d-91da-31a89fb59db6
 JIFFY_AUTH_COOKIE ?= $(BOARD_UUID).token
 BZIMAGE ?= $(LINUX_SRC)/arch/arm/boot/zImage
 PACKAGES += curl
+PACKAGES += dbg-macro
 PACKAGES += mbedtls
 PACKAGES += zlib
 PACKAGES += monolinux-c-library

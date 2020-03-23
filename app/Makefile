@@ -38,7 +38,7 @@ include $(ML_ROOT)/make/app.mk
 
 $(JIFFY_DTB): $(JIFFY_DTS) $(INITRAMFS)
 	echo "Patching the device tree."
-	./patch_device_tree.py $(JIFFY_DTS) $(INITRAMFS)
+	patch_device_tree.py $(JIFFY_DTS) $(INITRAMFS) 0x83f00000
 	$(MAKE) -C $(LINUX_SRC) dtbs
 	cp $(JIFFY_DTS:%.dts=%.dtb) $(JIFFY_DTB)
 

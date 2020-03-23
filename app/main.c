@@ -127,7 +127,6 @@ int main()
     ml_dhcp_client_start(&dhcp_client);
 #endif
 
-
     while (true) {
         sleep(10);
     }

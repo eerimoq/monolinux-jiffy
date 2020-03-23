@@ -44,4 +44,26 @@ $(JIFFY_DTB): $(JIFFY_DTS) $(INITRAMFS)
 
 $(JIFFY_BPAK): $(JIFFY_DTB) $(BZIMAGE) $(INITRAMFS)
 	echo "Creating $@."
-	./jiffy.sh $(JIFFY_DTB) $(BZIMAGE) $(INITRAMFS)
+	bpak create $@ --force
+	bpak add $@ \
+	    --meta pb-load-addr \
+	    --from-string 0x82820000 \
+	    --part-ref dt \
+	    --encoder integer
+	bpak add $@ --part dt --from-file $(JIFFY_DTB)
+	bpak add $@ \
+	    --meta pb-load-addr \
+	    --from-string 0x83000000 \
+	    --part-ref kernel \
+	    --encoder integer
+	bpak add $@ --part kernel --from-file $(BZIMAGE)
+	bpak add $@ \
+	    --meta pb-load-addr \
+	    --from-string 0x83f00000 \
+	    --part-ref ramdisk \
+	    --encoder integer
+	bpak add $@ --part ramdisk --from-file $(INITRAMFS)
+	bpak sign $@ \
+	    --key ../3pp/punchboot/pki/secp256r1-key-pair.pem \
+	    --key-id pb-development \
+	    --key-store pb

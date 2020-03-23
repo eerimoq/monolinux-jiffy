@@ -12,6 +12,19 @@ Bootloader: https://github.com/jonasblixt/punchboot
 
 Hardware: https://github.com/jonasblixt/jiffy
 
+Features
+========
+
+- Fast development cylce (a matter of seconds from source code change
+  to entering user space).
+
+- Everything the Linux kernel provides (networking, filesystems,
+  drivers, etc).
+
+- Various libraries provided by `Monolinux`_.
+
+- Efficient and fun unit testing with `Nala`_.
+
 Build and run
 =============
 
@@ -27,3 +40,7 @@ This requires that punchboot is running and ready to execute commands.
 
 .. |codecov| image:: https://codecov.io/gh/eerimoq/monolinux-jiffy/branch/master/graph/badge.svg
 .. _codecov: https://codecov.io/gh/eerimoq/monolinux-jiffy
+
+.. _Monolinux: https://github.com/eerimoq/monolinux
+
+.. _Nala: https://github.com/eerimoq/nala

@@ -17,7 +17,7 @@ TEST(http_get_command)
     curl_p = malloc(1);
     response_code = 200;
 
-    handle = ml_shell_register_command_mock_ignore_in_once();
+    handle = ml_shell_register_command_mock_once("http_get", "HTTP GET.");
     curl_easy_init_mock_once(curl_p);
     curl_easy_setopt_mock_once(CURLOPT_URL, CURLE_OK, "%s", "https://example.com");
     curl_easy_setopt_mock_once(CURLOPT_WRITEDATA, CURLE_OK, "%p");
@@ -53,7 +53,7 @@ TEST(http_get_command_get_error)
 
     curl_p = malloc(1);
 
-    handle = ml_shell_register_command_mock_ignore_in_once();
+    handle = ml_shell_register_command_mock_once("http_get", "HTTP GET.");
     curl_easy_init_mock_once(curl_p);
     curl_easy_setopt_mock_once(CURLOPT_URL, CURLE_OK, "%s", "https://example.com");
     curl_easy_setopt_mock_once(CURLOPT_WRITEDATA, CURLE_OK, "%p");
@@ -83,7 +83,7 @@ TEST(http_get_command_no_args_error)
     struct nala_ml_shell_register_command_params_t *params_p;
     int handle;
 
-    handle = ml_shell_register_command_mock_ignore_in_once();
+    handle = ml_shell_register_command_mock_once("http_get", "HTTP GET.");
 
     http_get_module_init();
 

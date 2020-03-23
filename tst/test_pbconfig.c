@@ -11,7 +11,8 @@ TEST(pbconfig_command_no_args_error)
     struct nala_ml_shell_register_command_params_t *params_p;
     int handle;
 
-    handle = ml_shell_register_command_mock_ignore_in_once();
+    handle = ml_shell_register_command_mock_once("pbconfig",
+                                                 "Punchboot config control.");
 
     pbconfig_module_init();
 
@@ -29,7 +30,8 @@ TEST(pbconfig_command_bad_subcommand)
     struct nala_ml_shell_register_command_params_t *params_p;
     int handle;
 
-    handle = ml_shell_register_command_mock_ignore_in_once();
+    handle = ml_shell_register_command_mock_once("pbconfig",
+                                                 "Punchboot config control.");
 
     pbconfig_module_init();
 
@@ -47,7 +49,8 @@ TEST(pbconfig_command_reset)
     struct nala_ml_shell_register_command_params_t *params_p;
     int handle;
 
-    handle = ml_shell_register_command_mock_ignore_in_once();
+    handle = ml_shell_register_command_mock_once("pbconfig",
+                                                 "Punchboot config control.");
     ml_dd_mock_once("/dev/zero", "/dev/mmcblk0p5", 512, 512, 0);
     ml_dd_mock_once("/dev/zero", "/dev/mmcblk0p6", 512, 512, 0);
 
@@ -74,7 +77,8 @@ TEST(pbconfig_command_status)
     config.verified = PB_CONFIG_A_VERIFIED;
     config.crc = 0x72c13861; /* Maybe wrong endianess. */
 
-    handle = ml_shell_register_command_mock_ignore_in_once();
+    handle = ml_shell_register_command_mock_once("pbconfig",
+                                                 "Punchboot config control.");
     ml_file_read_mock_once("/dev/mmcblk0p5", sizeof(config), 0);
     ml_file_read_mock_set_buf_p_out(&config, sizeof(config));
     ml_bool_str_mock_once(true, "true");

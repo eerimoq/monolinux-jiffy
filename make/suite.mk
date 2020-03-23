@@ -23,7 +23,6 @@ SRC += $(ML_JIFFY_ROOT)/3pp/nala/nala.c
 SRC += $(ML_JIFFY_ROOT)/src/http_get.c
 SRC += $(ML_JIFFY_ROOT)/src/pbconfig.c
 SRC += $(BUILD)/nala_mocks.c
-SRC += $(ML_JIFFY_ROOT)/tst/utils/utils.c
 SRC += $(TESTS)
 TESTS ?= main
 TESTS_C = $(BUILD)/suites.c

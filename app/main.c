@@ -6,7 +6,12 @@
 #include <stdint.h>
 #include <unistd.h>
 #include <string.h>
+#include <netinet/in.h>
 #include <linux/gpio.h>
+#include <linux/netlink.h>
+#include <linux/rtnetlink.h>
+#include <net/if.h>
+#include <arpa/inet.h>
 #include <sys/ioctl.h>
 #include <curl/curl.h>
 #include "ml/ml.h"
@@ -99,6 +104,60 @@ static void set_gpio1_io00_low(void)
     close(fd);
 }
 
+/**
+ * This should probably be moved to the DHCP client (or Monlinux C
+ * Library network module).
+ *
+ * Right now this function waits for any new network link, not only
+ * eth0.
+ */
+static void wait_for_eth0_up(void)
+{
+    struct sockaddr_nl addr;
+    int sockfd;
+    char buf[4096];
+    struct nlmsghdr *nlh_p;
+    int res;
+
+    sockfd = socket(PF_NETLINK, SOCK_RAW, NETLINK_ROUTE);
+
+    if (sockfd == -1) {
+        perror("couldn't open NETLINK_ROUTE socket");
+
+        return;
+    }
+
+    memset(&addr, 0, sizeof(addr));
+    addr.nl_family = AF_NETLINK;
+    addr.nl_groups = RTMGRP_LINK;
+
+    res = bind(sockfd, (struct sockaddr *)&addr, sizeof(addr));
+
+    if (res == -1) {
+        perror("couldn't bind");
+
+        return;
+    }
+
+    nlh_p = (struct nlmsghdr *)buf;
+
+    while (true) {
+        res = read(sockfd, nlh_p, 4096);
+
+        if (res <= 0) {
+            break;
+        }
+
+        while ((NLMSG_OK(nlh_p, res)) && (nlh_p->nlmsg_type != NLMSG_DONE)) {
+            if (nlh_p->nlmsg_type == RTM_NEWLINK) {
+                close(sockfd);
+            }
+
+            nlh_p = NLMSG_NEXT(nlh_p, res);
+        }
+    }
+}
+
 int main()
 {
     create_folders();
@@ -123,6 +182,7 @@ int main()
 #else
     struct ml_dhcp_client_t dhcp_client;
 
+    wait_for_eth0_up();
     ml_dhcp_client_init(&dhcp_client, "eth0", ML_LOG_INFO);
     ml_dhcp_client_start(&dhcp_client);
 #endif

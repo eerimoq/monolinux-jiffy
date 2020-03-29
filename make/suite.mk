@@ -11,7 +11,6 @@ CFLAGS += -g -O0
 CFLAGS += -DUNIT_TEST
 CFLAGS += -no-pie
 CFLAGS += -DCURL_DISABLE_TYPECHECK
-LDFLAGS_MOCKS = $(shell cat $(BUILD)/nala_mocks.ld)
 COVERAGE_FILTERS +=
 INC += $(ML_JIFFY_ROOT)/include
 INC += $(ML_JIFFY_ROOT)/3pp/nala
@@ -47,7 +46,7 @@ DEPSDIR = $(BUILD)/deps
 all: run
 
 build:
-	$(MAKE) $(BUILD)/nala_mocks.ld
+	$(MAKE) $(BUILD)/nala_mocks.ldflags
 	$(MAKE) $(EXE)
 
 run: build
@@ -56,7 +55,7 @@ run: build
 test: run
 	$(MAKE) coverage
 
-$(BUILD)/nala_mocks.ld: $(TESTS)
+$(BUILD)/nala_mocks.ldflags: $(TESTS)
 	echo "MOCKGEN $^"
 	mkdir -p $(BUILD)
 	[ -f $(BUILD)/nala_mocks.h ] || touch $(BUILD)/nala_mocks.h
@@ -84,7 +83,7 @@ clean:
 $(EXE): $(OBJ)
 	@echo "LD $@"
 	mkdir -p $(BUILD)
-	$(CC) $(CFLAGS) $^ $(LDFLAGS) $(LDFLAGS_MOCKS) -lpthread -o $@
+	$(CC) $(CFLAGS) $^ $(LDFLAGS) @$(BUILD)/nala_mocks.ldflags -lpthread -o $@
 
 define COMPILE_template
 -include $(patsubst %.c,$(DEPSDIR)%.o.dep,$(abspath $1))

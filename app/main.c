@@ -47,21 +47,21 @@ static void create_files(void)
     ml_mount("none", "/proc", "proc", 0, NULL);
     ml_mount("none", "/sys", "sysfs", 0, NULL);
 
-    ml_mknod("/dev/null", S_IFCHR | 0644, makedev(1, 3));
-    ml_mknod("/dev/zero", S_IFCHR | 0644, makedev(1, 5));
-    ml_mknod("/dev/urandom", S_IFCHR | 0644, makedev(1, 9));
-    ml_mknod("/dev/kmsg", S_IFCHR | 0644, makedev(1, 11));
-    ml_mknod("/dev/mmcblk0", S_IFBLK | 0644, makedev(179, 0));
-    ml_mknod("/dev/mmcblk0p1", S_IFBLK | 0644, makedev(179, 1));
-    ml_mknod("/dev/mmcblk0p2", S_IFBLK | 0644, makedev(179, 2));
-    ml_mknod("/dev/mmcblk0p3", S_IFBLK | 0644, makedev(179, 3));
-    ml_mknod("/dev/mmcblk0p4", S_IFBLK | 0644, makedev(179, 4));
-    ml_mknod("/dev/mmcblk0p5", S_IFBLK | 0644, makedev(179, 5));
-    ml_mknod("/dev/mmcblk0p6", S_IFBLK | 0644, makedev(179, 6));
-    ml_mknod("/dev/mmcblk0boot0", S_IFBLK | 0644, makedev(179, 16));
-    ml_mknod("/dev/mmcblk0boot1", S_IFBLK | 0644, makedev(179, 32));
-    ml_mknod("/dev/gpiochip1", S_IFCHR | 0644, makedev(254, 0));
-    ml_mknod("/dev/i2c3", S_IFCHR | 0644, makedev(89, 2));
+    mknod("/dev/null", S_IFCHR | 0644, makedev(1, 3));
+    mknod("/dev/zero", S_IFCHR | 0644, makedev(1, 5));
+    mknod("/dev/urandom", S_IFCHR | 0644, makedev(1, 9));
+    mknod("/dev/kmsg", S_IFCHR | 0644, makedev(1, 11));
+    mknod("/dev/mmcblk0", S_IFBLK | 0644, makedev(179, 0));
+    mknod("/dev/mmcblk0p1", S_IFBLK | 0644, makedev(179, 1));
+    mknod("/dev/mmcblk0p2", S_IFBLK | 0644, makedev(179, 2));
+    mknod("/dev/mmcblk0p3", S_IFBLK | 0644, makedev(179, 3));
+    mknod("/dev/mmcblk0p4", S_IFBLK | 0644, makedev(179, 4));
+    mknod("/dev/mmcblk0p5", S_IFBLK | 0644, makedev(179, 5));
+    mknod("/dev/mmcblk0p6", S_IFBLK | 0644, makedev(179, 6));
+    mknod("/dev/mmcblk0boot0", S_IFBLK | 0644, makedev(179, 16));
+    mknod("/dev/mmcblk0boot1", S_IFBLK | 0644, makedev(179, 32));
+    mknod("/dev/gpiochip1", S_IFCHR | 0644, makedev(254, 0));
+    mknod("/dev/i2c3", S_IFCHR | 0644, makedev(89, 2));
 
     ml_file_write_string("/etc/resolv.conf", "nameserver 8.8.4.4\n");
 }

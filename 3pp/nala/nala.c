@@ -382,6 +382,8 @@ __attribute__ ((weak)) int nala_print_call_mask = 0;
 
 static bool continue_on_failure = false;
 
+static const char *report_json_file_p = "report.json";
+
 static const char *get_node(void)
 {
     static char buf[128];
@@ -471,8 +473,10 @@ static void capture_output_destroy(struct capture_output_t *self_p)
         self_p->output_pp = NULL;
     }
 
-    fflush(self_p->stdout_p);
-    fclose(self_p->stdout_p);
+    if (self_p->stdout_p != NULL) {
+        fflush(self_p->stdout_p);
+        fclose(self_p->stdout_p);
+    }
 }
 
 static void capture_output_redirect(struct capture_output_t *self_p)
@@ -685,9 +689,13 @@ static void write_report_json(struct nala_test_t *test_p)
 {
     FILE *file_p;
 
-    file_p = fopen("report.json", "w");
+    file_p = fopen(report_json_file_p, "w");
 
     if (file_p == NULL) {
+        fprintf(stderr,
+                "error: Failed to open JSON report '%s' with '%s'.\n",
+                report_json_file_p,
+                strerror(errno));
         exit(1);
     }
 
@@ -1239,7 +1247,9 @@ static void print_usage_and_exit(const char *program_name_p, int exit_code)
            "  -h, --help                    Show this help message and exit.\n"
            "  -v, --version                 Print version information.\n"
            "  -c, --continue-on-failure     Always run all tests.\n"
-           "  -a, --print-all-calls         Print all calls to ease debugging.\n",
+           "  -a, --print-all-calls         Print all calls to ease debugging.\n"
+           "  -r, --report-json-file        JSON test report file (default: "
+           "report.json).\n",
            program_name_p);
     exit(exit_code);
 }
@@ -1274,11 +1284,12 @@ static void filter_tests(const char *test_pattern_p)
 __attribute__((weak)) int main(int argc, char *argv[])
 {
     static struct option long_options[] = {
-        { "help",                no_argument, NULL, 'h' },
-        { "version",             no_argument, NULL, 'v' },
-        { "continue-on-failure", no_argument, NULL, 'c' },
-        { "print-all-calls",     no_argument, NULL, 'a' },
-        { NULL,                  no_argument, NULL, 0 }
+        { "help",                no_argument,       NULL, 'h' },
+        { "version",             no_argument,       NULL, 'v' },
+        { "continue-on-failure", no_argument,       NULL, 'c' },
+        { "print-all-calls",     no_argument,       NULL, 'a' },
+        { "report-json-file",    required_argument, NULL, 'r' },
+        { NULL,                  no_argument,       NULL, 0 }
     };
     int option;
 
@@ -1286,7 +1297,7 @@ __attribute__((weak)) int main(int argc, char *argv[])
     nala_suspend_all_mocks();
 
     while (1) {
-        option = getopt_long(argc, argv, "hvca", &long_options[0], NULL);
+        option = getopt_long(argc, argv, "hvcar:", &long_options[0], NULL);
 
         if (option == -1) {
             break;
@@ -1308,6 +1319,10 @@ __attribute__((weak)) int main(int argc, char *argv[])
 
         case 'a':
             nala_print_call_mask = 0xff;
+            break;
+
+        case 'r':
+            report_json_file_p = optarg;
             break;
 
         default:
@@ -1362,8 +1377,6 @@ char *nala_mock_traceback_format(void **buffer_pp, int depth)
 
 #define CHECK_GE(actual, expected) ((actual) >= (expected))
 
-#define FORMAT_EQ(format, actual, expected) nala_format(format, (actual), (expected))
-
 #define PRINT_FORMAT(value)                     \
     _Generic((value),                           \
              char: "%c",                        \
@@ -1384,6 +1397,19 @@ char *nala_mock_traceback_format(void **buffer_pp, int depth)
              bool: "%d",                        \
              const void *: "%p")
 
+#define PRINT_FORMAT_HEX(value)                 \
+    _Generic((value),                           \
+             signed char: "%hhx",               \
+             unsigned char: "%hhx",             \
+             signed short: "%hx",               \
+             unsigned short: "%hx",             \
+             signed int: "%x",                  \
+             unsigned int: "%x",                \
+             long int: "%lx",                   \
+             unsigned long int: "%lx",          \
+             long long int: "%llx",             \
+             unsigned long long int: "%llx")
+
 #define ASSERTION(actual, expected, check, format, formatter)   \
     do {                                                        \
         if (!check(actual, expected)) {                         \
@@ -1401,11 +1427,32 @@ char *nala_mock_traceback_format(void **buffer_pp, int depth)
         }                                                       \
     } while (0);
 
+#define ASSERTION_WITH_HEX(actual, expected, check, format, formatter)  \
+    do {                                                                \
+        if (!check(actual, expected)) {                                 \
+            nala_reset_all_mocks();                                     \
+            char _nala_assert_format[512];                              \
+                                                                        \
+            snprintf(&_nala_assert_format[0],                           \
+                     sizeof(_nala_assert_format),                       \
+                     format,                                            \
+                     PRINT_FORMAT(actual),                              \
+                     PRINT_FORMAT(expected),                            \
+                     PRINT_FORMAT_HEX(actual),                          \
+                     PRINT_FORMAT_HEX(expected));                       \
+            nala_test_failure(formatter(_nala_assert_format,            \
+                                        actual,                         \
+                                        expected,                       \
+                                        actual,                         \
+                                        expected));                     \
+        }                                                               \
+    } while (0);
+
 #define BINARY_ASSERTION(actual, expected, op)                          \
     switch (op) {                                                       \
                                                                         \
     case NALA_CHECK_EQ:                                                 \
-        ASSERTION(actual, expected, CHECK_EQ, "%s != %s\n", FORMAT_EQ); \
+        ASSERTION(actual, expected, CHECK_EQ, "%s != %s\n", nala_format); \
         break;                                                          \
                                                                         \
     case NALA_CHECK_NE:                                                 \
@@ -1433,6 +1480,30 @@ char *nala_mock_traceback_format(void **buffer_pp, int depth)
         break;                                                          \
     }
 
+#define BINARY_ASSERTION_WITH_HEX(actual, expected, op)                 \
+    switch (op) {                                                       \
+                                                                        \
+    case NALA_CHECK_EQ:                                                 \
+        ASSERTION_WITH_HEX(actual,                                      \
+                           expected,                                    \
+                           CHECK_EQ,                                    \
+                           "%s != %s (0x%s != 0x%s)\n",                 \
+                           nala_format);                                \
+        break;                                                          \
+                                                                        \
+    case NALA_CHECK_NE:                                                 \
+        ASSERTION_WITH_HEX(actual,                                      \
+                           expected,                                    \
+                           CHECK_NE,                                    \
+                           "%s == %s (0x%s == 0x%s)\n",                 \
+                           nala_format);                                \
+        break;                                                          \
+                                                                        \
+    default:                                                            \
+        BINARY_ASSERTION(actual, expected, op);                         \
+        break;                                                          \
+    }
+
 void nala_assert_char(char actual, char expected, int op)
 {
     BINARY_ASSERTION(actual, expected, op);
@@ -1450,44 +1521,44 @@ void nala_assert_uchar(unsigned char actual, unsigned char expected, int op)
 
 void nala_assert_short(short actual, short expected, int op)
 {
-    BINARY_ASSERTION(actual, expected, op);
+    BINARY_ASSERTION_WITH_HEX(actual, expected, op);
 }
 
 void nala_assert_ushort(unsigned short actual, unsigned short expected, int op)
 {
-    BINARY_ASSERTION(actual, expected, op);
+    BINARY_ASSERTION_WITH_HEX(actual, expected, op);
 }
 
 void nala_assert_int(int actual, int expected, int op)
 {
-    BINARY_ASSERTION(actual, expected, op);
+    BINARY_ASSERTION_WITH_HEX(actual, expected, op);
 }
 
 void nala_assert_uint(unsigned int actual, unsigned int expected, int op)
 {
-    BINARY_ASSERTION(actual, expected, op);
+    BINARY_ASSERTION_WITH_HEX(actual, expected, op);
 }
 
 void nala_assert_long(long actual, long expected, int op)
 {
-    BINARY_ASSERTION(actual, expected, op);
+    BINARY_ASSERTION_WITH_HEX(actual, expected, op);
 }
 
 void nala_assert_ulong(unsigned long actual, unsigned long expected, int op)
 {
-    BINARY_ASSERTION(actual, expected, op);
+    BINARY_ASSERTION_WITH_HEX(actual, expected, op);
 }
 
 void nala_assert_llong(long long actual, long long expected, int op)
 {
-    BINARY_ASSERTION(actual, expected, op);
+    BINARY_ASSERTION_WITH_HEX(actual, expected, op);
 }
 
 void nala_assert_ullong(unsigned long long actual,
                         unsigned long long expected,
                         int op)
 {
-    BINARY_ASSERTION(actual, expected, op);
+    BINARY_ASSERTION_WITH_HEX(actual, expected, op);
 }
 
 void nala_assert_float(float actual, float expected, int op)

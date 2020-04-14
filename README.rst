@@ -1,5 +1,6 @@
 |buildstatus|_
 |codecov|_
+|nala|_
 
 Monolinux Jiffy
 ===============
@@ -40,6 +41,9 @@ This requires that punchboot is running and ready to execute commands.
 
 .. |codecov| image:: https://codecov.io/gh/eerimoq/monolinux-jiffy/branch/master/graph/badge.svg
 .. _codecov: https://codecov.io/gh/eerimoq/monolinux-jiffy
+
+.. |nala| image:: https://img.shields.io/badge/nala-test-blue.svg
+.. _nala: https://github.com/eerimoq/nala
 
 .. _Monolinux: https://github.com/eerimoq/monolinux
 

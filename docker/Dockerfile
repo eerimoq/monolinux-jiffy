@@ -59,7 +59,10 @@ COPY uuu /usr/bin
 RUN pip3 install \
     ecdsa \
     imx \
-    nala==0.124.1
+    pbtools \
+    messi \
+    nala==0.175.0 \
+    bunga==0.6.0
 
 ENV LC_ALL C.UTF-8
 ENV LANG C.UTF-8

@@ -6,13 +6,13 @@
 #include <curl/curl.h>
 #include "ml/ml.h"
 
-static void http_get(const char *url_p)
+static void http_get(const char *url_p, FILE *fout_p)
 {
     CURL *curl_p;
     long response_code;
     int res;
 
-    printf("\n>>> HTTP GET %s. >>>\n", url_p);
+    fprintf(fout_p, "\n>>> HTTP GET %s. >>>\n", url_p);
 
     curl_p = curl_easy_init();
 
@@ -31,25 +31,26 @@ static void http_get(const char *url_p)
 
     if (res == CURLE_OK) {
         curl_easy_getinfo(curl_p, CURLINFO_RESPONSE_CODE, &response_code);
-        printf("<<< HTTP GET response code %ld. <<<\n", response_code);
+        fprintf(fout_p, "<<< HTTP GET response code %ld. <<<\n", response_code);
     } else {
-        printf("<<< HTTP GET CURL error code %d: %s. <<<\n",
-               res,
-               curl_easy_strerror(res));
+        fprintf(fout_p,
+                "<<< HTTP GET CURL error code %d: %s. <<<\n",
+                res,
+                curl_easy_strerror(res));
     }
 
     curl_easy_cleanup(curl_p);
 }
 
-static int command_http_get(int argc, const char *argv[])
+static int command_http_get(int argc, const char *argv[], FILE *fout_p)
 {
     if (argc != 2) {
-        printf("Usage: http_get <url>\n");
+        fprintf(fout_p, "Usage: http_get <url>\n");
 
         return (-EINVAL);
     }
 
-    http_get(argv[1]);
+    http_get(argv[1], fout_p);
 
     return (0);
 }

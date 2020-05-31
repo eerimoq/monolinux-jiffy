@@ -35,7 +35,7 @@ TEST(http_get_command)
 
     CAPTURE_OUTPUT(output, errput) {
         params_p = ml_shell_register_command_mock_get_params_in(handle);
-        ASSERT_EQ(params_p->callback(2, &argv[0]), 0);
+        ASSERT_EQ(params_p->callback(2, &argv[0], stdout), 0);
     }
 
     ASSERT_SUBSTRING(output, ">>> HTTP GET https://example.com. >>>");
@@ -68,7 +68,7 @@ TEST(http_get_command_get_error)
 
     CAPTURE_OUTPUT(output, errput) {
         params_p = ml_shell_register_command_mock_get_params_in(handle);
-        ASSERT_EQ(params_p->callback(2, &argv[0]), 0);
+        ASSERT_EQ(params_p->callback(2, &argv[0], stdout), 0);
     }
 
     ASSERT_SUBSTRING(output, ">>> HTTP GET https://example.com. >>>");
@@ -89,7 +89,7 @@ TEST(http_get_command_no_args_error)
 
     CAPTURE_OUTPUT(output, errput) {
         params_p = ml_shell_register_command_mock_get_params_in(handle);
-        ASSERT_EQ(params_p->callback(1, &argv[0]), -EINVAL);
+        ASSERT_EQ(params_p->callback(1, &argv[0], stdout), -EINVAL);
     }
 
     ASSERT_EQ(output, "Usage: http_get <url>\n");

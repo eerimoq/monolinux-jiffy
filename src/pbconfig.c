@@ -28,14 +28,19 @@ static const char *is_bit_set(uint32_t value, uint32_t bit)
 static void command_pbconfig_print_system(struct config *config_p,
                                           const char *system_p,
                                           uint32_t enabled_bit,
-                                          uint32_t verified_bit)
+                                          uint32_t verified_bit,
+                                          FILE *fout_p)
 {
-    printf("System %s:\n", system_p);
-    printf("  Enabled:  %s\n", is_bit_set(config_p->enable, enabled_bit));
-    printf("  Verified: %s\n", is_bit_set(config_p->verified, verified_bit));
+    fprintf(fout_p,
+            "System %s:\n"
+            "  Enabled:  %s\n"
+            "  Verified: %s\n",
+            system_p,
+            is_bit_set(config_p->enable, enabled_bit),
+            is_bit_set(config_p->verified, verified_bit));
 }
 
-static int command_pbconfig_status(void)
+static int command_pbconfig_status(FILE *fout_p)
 {
     struct config config;
     int res;
@@ -43,7 +48,7 @@ static int command_pbconfig_status(void)
     res = ml_file_read("/dev/mmcblk0p5", &config, sizeof(config));
 
     if (res != 0) {
-        printf("Failed to read config.\n");
+        fprintf(fout_p, "Failed to read config.\n");
 
         return (res);
     }
@@ -51,16 +56,18 @@ static int command_pbconfig_status(void)
     command_pbconfig_print_system(&config,
                                   "A",
                                   PB_CONFIG_A_ENABLED,
-                                  PB_CONFIG_A_VERIFIED);
+                                  PB_CONFIG_A_VERIFIED,
+                                  fout_p);
     command_pbconfig_print_system(&config,
                                   "B",
                                   PB_CONFIG_B_ENABLED,
-                                  PB_CONFIG_B_VERIFIED);
+                                  PB_CONFIG_B_VERIFIED,
+                                  fout_p);
 
     return (0);
 }
 
-static int command_pbconfig(int argc, const char *argv[])
+static int command_pbconfig(int argc, const char *argv[], FILE *fout_p)
 {
     int res;
 
@@ -70,14 +77,14 @@ static int command_pbconfig(int argc, const char *argv[])
         if (strcmp(argv[1], "reset") == 0) {
             res = command_pbconfig_reset();
         } else if (strcmp(argv[1], "status") == 0) {
-            res = command_pbconfig_status();
+            res = command_pbconfig_status(fout_p);
         } else {
             res = -EINVAL;
         }
     }
 
     if (res != 0) {
-        printf("Usage: pbconfig {reset,status}\n");
+        fprintf(fout_p, "Usage: pbconfig {reset,status}\n");
     }
 
     return (res);

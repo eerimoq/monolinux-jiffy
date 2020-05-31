@@ -18,7 +18,7 @@ TEST(pbconfig_command_no_args_error)
 
     CAPTURE_OUTPUT(output, errput) {
         params_p = ml_shell_register_command_mock_get_params_in(handle);
-        ASSERT_EQ(params_p->callback(1, &argv[0]), -EINVAL);
+        ASSERT_EQ(params_p->callback(1, &argv[0], stdout), -EINVAL);
     }
 
     ASSERT_EQ(output, "Usage: pbconfig {reset,status}\n");
@@ -37,7 +37,7 @@ TEST(pbconfig_command_bad_subcommand)
 
     CAPTURE_OUTPUT(output, errput) {
         params_p = ml_shell_register_command_mock_get_params_in(handle);
-        ASSERT_EQ(params_p->callback(2, &argv[0]), -EINVAL);
+        ASSERT_EQ(params_p->callback(2, &argv[0], stdout), -EINVAL);
     }
 
     ASSERT_EQ(output, "Usage: pbconfig {reset,status}\n");
@@ -58,7 +58,7 @@ TEST(pbconfig_command_reset)
 
     CAPTURE_OUTPUT(output, errput) {
         params_p = ml_shell_register_command_mock_get_params_in(handle);
-        ASSERT_EQ(params_p->callback(2, &argv[0]), 0);
+        ASSERT_EQ(params_p->callback(2, &argv[0], stdout), 0);
     }
 
     ASSERT_EQ(output, "");
@@ -90,7 +90,7 @@ TEST(pbconfig_command_status)
 
     CAPTURE_OUTPUT(output, errput) {
         params_p = ml_shell_register_command_mock_get_params_in(handle);
-        ASSERT_EQ(params_p->callback(2, &argv[0]), 0);
+        ASSERT_EQ(params_p->callback(2, &argv[0], stdout), 0);
     }
 
     ASSERT_EQ(output,

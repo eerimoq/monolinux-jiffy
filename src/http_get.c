@@ -21,7 +21,7 @@ static void http_get(const char *url_p, FILE *fout_p)
     }
     
     curl_easy_setopt(curl_p, CURLOPT_URL, url_p);
-    curl_easy_setopt(curl_p, CURLOPT_WRITEDATA, stdout);
+    curl_easy_setopt(curl_p, CURLOPT_WRITEDATA, fout_p);
 
     /* WARNING: Makes the connection unsecure! */
     curl_easy_setopt(curl_p, CURLOPT_SSL_VERIFYPEER, 0);

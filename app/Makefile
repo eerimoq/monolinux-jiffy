@@ -9,10 +9,17 @@ PACKAGES += dbg-macro
 PACKAGES += mbedtls
 PACKAGES += zlib
 PACKAGES += monolinux-c-library
+PACKAGES += pbtools
+PACKAGES += messi
+PACKAGES += bunga
 INC += $(ML_SOURCES)/punchboot/src/include
 INC += ../include
 SRC += ../src/http_get.c
 SRC += ../src/pbconfig.c
+SRC += ../src/bunga_server_linux.c
+INITRAMFS_FILES += build/linux/drivers/w1/masters/w1-gpio.ko
+INITRAMFS_FILES += build/linux/drivers/w1/slaves/w1_therm.ko
+INITRAMFS_FILES += build/linux/drivers/w1/wire.ko
 
 default:
 	$(MAKE) all

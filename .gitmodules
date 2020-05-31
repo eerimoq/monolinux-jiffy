@@ -34,3 +34,12 @@
 [submodule "3pp/dbg-macro"]
 	path = 3pp/dbg-macro
 	url = https://github.com/eerimoq/dbg-macro
+[submodule "3pp/pbtools"]
+	path = 3pp/pbtools
+	url = https://github.com/eerimoq/pbtools
+[submodule "3pp/messi"]
+	path = 3pp/messi
+	url = https://github.com/eerimoq/messi
+[submodule "3pp/bunga"]
+	path = 3pp/bunga
+	url = https://github.com/eerimoq/bunga

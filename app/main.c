@@ -17,6 +17,7 @@
 #include "ml/ml.h"
 #include "jiffy/pbconfig.h"
 #include "jiffy/http_get.h"
+#include "bunga_server_linux.h"
 
 struct folder_t {
     const char *path_p;
@@ -187,6 +188,8 @@ int main()
     ml_dhcp_client_start(&dhcp_client);
 #endif
 
+    bunga_server_linux_create();
+    
     while (true) {
         sleep(10);
     }

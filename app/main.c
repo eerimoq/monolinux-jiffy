@@ -24,6 +24,27 @@ struct folder_t {
     int mode;
 };
 
+static void insert_modules(void)
+{
+    int res;
+    int i;
+    static const char *modules[] = {
+        "/root/wire.ko",
+        "/root/w1-gpio.ko",
+        "/root/w1_therm.ko"
+    };
+
+    for (i = 0; i < membersof(modules); i++) {
+        res = ml_insert_module(modules[i], "");
+
+        if (res == 0) {
+            printf("Successfully inserted '%s'.\n", modules[i]);
+        } else {
+            printf("Failed to insert '%s'.\n", modules[i]);
+        }
+    }
+}
+
 static void create_folders(void)
 {
     static const struct folder_t folders[] = {
@@ -159,8 +180,76 @@ static void wait_for_eth0_up(void)
     }
 }
 
+static void ds18b20_usage(FILE *fout_p)
+{
+    fprintf(fout_p,
+            "Usage: ds18b20 read <id>\n"
+            "         where\n"
+            "           <id> is a device id on the form 28-0000055d3295.\n"
+            "                Run \"ls sys/bus/w1/devices\" to list devices.\n");
+}
+
+static int ds18b20_read(int argc, const char *argv[], FILE *fout_p)
+{
+    int res;
+    char path[64];
+    char output[75];
+    int temperature;
+
+    if (argc != 3) {
+        ds18b20_usage(fout_p);
+
+        return (-EINVAL);
+    }
+
+    snprintf(&path[0], sizeof(path), "/sys/bus/w1/devices/%s/w1_slave", argv[2]);
+
+    res = ml_file_read(&path[0], &output[0], sizeof(output));
+
+    if (res != 0) {
+        fprintf(fout_p, "Failed to read from %s.\n", &path[0]);
+
+        return (-EGENERAL);
+    }
+
+    if (strncmp(&output[36], "YES", 3) != 0) {
+        fprintf(fout_p, "Wrong CRC.\n");
+
+        return (-EGENERAL);
+    }
+
+    temperature = atoi(&output[69]);
+
+    fprintf(fout_p,
+            "Temperature: %d.%u C\n",
+            temperature / 1000,
+            temperature % 1000);
+
+    return (0);
+}
+
+static int ds18b20(int argc, const char *argv[], FILE *fout_p)
+{
+    int res;
+
+    if (argc < 2) {
+        ds18b20_usage(fout_p);
+
+        return (-EINVAL);
+    }
+
+    if (strcmp(argv[1], "read") == 0) {
+        res = ds18b20_read(argc, &argv[0], fout_p);
+    } else {
+        res = -EINVAL;
+    }
+
+    return (res);
+}
+
 int main()
 {
+    insert_modules();
     create_folders();
     create_files();
     ml_init();
@@ -170,6 +259,9 @@ int main()
     ml_shell_init();
     http_get_module_init();
     pbconfig_module_init();
+    ml_shell_register_command("ds18b20",
+                              "Dallas DS18B20 sensor.",
+                              ds18b20);
     ml_network_init();
     ml_shell_start();
     ml_network_interface_up("eth0");
@@ -189,7 +281,7 @@ int main()
 #endif
 
     bunga_server_linux_create();
-    
+
     while (true) {
         sleep(10);
     }

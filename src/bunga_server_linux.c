@@ -50,44 +50,68 @@ struct execute_command_t {
     struct ml_queue_t *queue_p;
 };
 
-struct client_t {
+struct log_client_t {
     struct bunga_server_client_t *client_p;
     int log_fd;
 };
 
 static struct bunga_server_client_t clients[2];
-/* static struct client_t clients[2]; */
+static struct log_client_t log_clients[2];
 static struct ml_queue_t queue;
+static int epoll_fd;
 
 static ML_UID(uid_execute_command_complete);
+
+static struct log_client_t *log_client_from_client(
+    struct bunga_server_client_t *client_p)
+{
+    return (&log_clients[client_p - &clients[0]]);
+}
+
+static struct bunga_server_client_t *log_client_to_client(
+    struct log_client_t *client_p)
+{
+    return (&clients[client_p - &log_clients[0]]);
+}
+
+static void log_client_init(struct log_client_t *self_p)
+{
+    struct epoll_event event;
+
+    self_p->log_fd = open("/dev/kmsg", O_RDONLY | O_NONBLOCK);
+
+    if (self_p->log_fd != -1) {
+        event.data.fd = self_p->log_fd;
+        event.events = EPOLLIN;
+        epoll_ctl(epoll_fd, EPOLL_CTL_ADD, self_p->log_fd, &event);
+    }
+}
+
+static void log_client_destroy(struct log_client_t *self_p)
+{
+    epoll_ctl(epoll_fd, EPOLL_CTL_DEL, self_p->log_fd, NULL);
+    close(self_p->log_fd);
+    self_p->log_fd = -1;
+}
 
 static void on_client_connected(struct bunga_server_t *self_p,
                                 struct bunga_server_client_t *client_p)
 {
     (void)self_p;
-    (void)client_p;
 
     printf("Bunga client connected.\n");
 
-    /* client_p->log_fd = open("/dev/kmsg", O_RDONLY | O_NONBLOCK); */
-
-    /* if (fd == -1) { */
-    /*     return (-errno); */
-    /* } */
-
-    /* epoll_ctl(log_fd); */
+    log_client_init(log_client_from_client(client_p));
 }
 
 static void on_client_disconnected(struct bunga_server_t *self_p,
                                    struct bunga_server_client_t *client_p)
 {
     (void)self_p;
-    (void)client_p;
-
-    /* epoll_ctl(client_p->log_fd); */
-    /* close(client_p->log_fd); */
 
     printf("Bunga client disconnected.\n");
+
+    log_client_destroy(log_client_from_client(client_p));
 }
 
 static void execute_command_job(struct execute_command_t *command_p)
@@ -197,61 +221,84 @@ static void handle_execute_command_complete(struct execute_command_t *command_p)
     ml_message_free(command_p);
 }
 
-/* static void print_kernel_message(char *message_p, */
-/*                                  struct bunga_server_t *server_p, */
-/*                                  struct bunga_server_client_t *client_p) */
-/* { */
-/*     unsigned long long secs; */
-/*     unsigned long long usecs; */
-/*     int text_pos; */
-/*     char *text_p; */
-/*     char *match_p; */
+static void print_kernel_message(char *message_p,
+                                 struct bunga_server_t *server_p,
+                                 struct bunga_server_client_t *client_p)
+{
+    unsigned long long secs;
+    unsigned long long usecs;
+    int text_pos;
+    char *text_p;
+    char *match_p;
+    char header[32];
+    struct bunga_log_entry_ind_t *indication_p;
 
-/*     if (sscanf(message_p, "%*u,%*u,%llu,%*[^;]; %n", &usecs, &text_pos) != 1) { */
-/*         return; */
-/*     } */
+    if (sscanf(message_p, "%*u,%*u,%llu,%*[^;]; %n", &usecs, &text_pos) != 1) {
+        return;
+    }
 
-/*     text_p = &message_p[text_pos]; */
-/*     match_p = strchr(text_p, '\n'); */
+    text_p = &message_p[text_pos];
+    match_p = strchr(text_p, '\n');
 
-/*     if (match_p != NULL) { */
-/*         *match_p = '\0'; */
-/*     } */
+    if (match_p != NULL) {
+        *match_p = '\0';
+    }
 
-/*     secs = (usecs / 1000000); */
-/*     usecs %= 1000000; */
+    secs = (usecs / 1000000);
+    usecs %= 1000000;
 
-/*     snprintf(&buf[0], "[%5lld.%06lld] %s\n", secs, usecs, text_p); */
-/*     message_p = bunga_server_init_log_point_ind(); */
-/*     message_p->text_pp[0] = &header[0]; */
-/*     message_p->text_pp[1] = text_p; */
-/*     bunga_server_send(server_p, client_p); */
-/* } */
+    snprintf(&header[0], sizeof(header), "[%5lld.%06lld]", secs, usecs);
+    indication_p = bunga_server_init_log_entry_ind(server_p);
 
-/* static bool handle_log(struct bunga_server_t *server_p, int log_fd) */
-/* { */
-/*     char message[1024]; */
-/*     ssize_t size; */
+    if (bunga_log_entry_ind_text_alloc(indication_p, 2) != 0) {
+        return;
+    }
 
-/*     client_p = find_client(log_fd); */
+    indication_p->text.items_pp[0] = &header[0];
+    indication_p->text.items_pp[1] = text_p;
+    bunga_server_send(server_p, client_p);
+}
 
-/*     if (client_p == NULL) { */
-/*         return (false); */
-/*     } */
+static struct log_client_t *find_log_client(int log_fd)
+{
+    int i;
 
-/*     while (true) { */
-/*         size = read(log_fd, &message[0], sizeof(message) - 1); */
+    for (i = 0; i < 2; i++) {
+        if (log_fd == log_clients[i].log_fd) {
+            return (&log_clients[i]);
+        }
+    }
 
-/*         if (size <= 0) { */
-/*             break; */
-/*         } */
+    return (NULL);
+}
 
-/*         message[size] = '\0'; */
-/*         print_kernel_message(&message[0], server_p, client_p); */
-/*     } */
+static bool handle_log(struct bunga_server_t *server_p, int log_fd)
+{
+    char message[1024];
+    ssize_t size;
+    struct log_client_t *client_p;
 
-/*     return (true); */
-/* } */
+    client_p = find_log_client(log_fd);
+
+    if (client_p == NULL) {
+        return (false);
+    }
+
+    while (true) {
+        size = read(log_fd, &message[0], sizeof(message) - 1);
+
+        if (size <= 0) {
+            break;
+        }
+
+        message[size] = '\0';
+        print_kernel_message(&message[0],
+                             server_p,
+                             log_client_to_client(client_p));
+    }
+
+    return (true);
+}
 
 static void on_put_signal_event(int *fd_p)
 {
@@ -266,17 +313,17 @@ static void on_put_signal_event(int *fd_p)
 static void *main()
 {
     struct bunga_server_t server;
-    uint8_t clients_input_buffers[2][128];
-    uint8_t message[128];
-    uint8_t workspace_in[128];
-    uint8_t workspace_out[128];
-    int epoll_fd;
+    uint8_t clients_input_buffers[2][256];
+    uint8_t message[256];
+    uint8_t workspace_in[256];
+    uint8_t workspace_out[256];
     int put_fd;
     struct epoll_event event;
     int res;
     struct ml_uid_t *uid_p;
     void *message_p;
     uint64_t value;
+    int i;
 
     printf("Starting a Bunga server on ':28000'.\n");
 
@@ -335,6 +382,10 @@ static void *main()
         return (NULL);
     }
 
+    for (i = 0; i < 2; i++) {
+        log_clients[i].log_fd = -1;
+    }
+
     res = bunga_server_start(&server);
 
     if (res != 0) {
@@ -361,9 +412,9 @@ static void *main()
                 handle_execute_command_complete(message_p);
             }
         } else {
-            /* if (handle_log(&server, event.data.fd)) { */
-            /*     continue; */
-            /* } */
+            if (handle_log(&server, event.data.fd)) {
+                continue;
+            }
 
             bunga_server_process(&server, event.data.fd, event.events);
         }

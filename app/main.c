@@ -1,3 +1,4 @@
+#define _GNU_SOURCE
 #include <stdio.h>
 #include <errno.h>
 #include <stdlib.h>
@@ -249,6 +250,8 @@ static int ds18b20(int argc, const char *argv[], FILE *fout_p)
 
 int main()
 {
+    pthread_setname_np(pthread_self(), "main");
+
     insert_modules();
     create_folders();
     create_files();

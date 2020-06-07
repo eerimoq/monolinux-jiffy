@@ -30,6 +30,7 @@ static void insert_modules(void)
     int res;
     int i;
     static const char *modules[] = {
+        "/root/cn.ko",
         "/root/wire.ko",
         "/root/w1-gpio.ko",
         "/root/w1_therm.ko"
@@ -50,7 +51,7 @@ static void create_folders(void)
 {
     static const struct folder_t folders[] = {
         { "/proc", 0644 },
-        { "/sys", 0444 },
+        /* { "/sys", 0444 }, */
         { "/etc", 0644 }
     };
     int i;
@@ -68,7 +69,7 @@ static void create_folders(void)
 static void create_files(void)
 {
     ml_mount("none", "/proc", "proc", 0, NULL);
-    ml_mount("none", "/sys", "sysfs", 0, NULL);
+    /* ml_mount("none", "/sys", "sysfs", 0, NULL); */
 
     mknod("/dev/null", S_IFCHR | 0644, makedev(1, 3));
     mknod("/dev/zero", S_IFCHR | 0644, makedev(1, 5));

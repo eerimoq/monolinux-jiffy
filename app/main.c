@@ -184,6 +184,8 @@ static void wait_for_eth0_up(void)
 
 int main()
 {
+    fprintf(stderr, "main()\n");
+
     pthread_setname_np(pthread_self(), "main");
 
     insert_modules();

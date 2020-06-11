@@ -30,10 +30,6 @@ static void insert_modules(void)
     int res;
     int i;
     static const char *modules[] = {
-        "/root/cn.ko",
-        "/root/wire.ko",
-        "/root/w1-gpio.ko",
-        "/root/w1_therm.ko"
     };
 
     for (i = 0; i < membersof(modules); i++) {

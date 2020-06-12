@@ -61,8 +61,9 @@ RUN pip3 install \
     imx \
     pbtools \
     messi \
-    nala==0.175.0 \
-    bunga==0.6.0
+    nala==0.175.1 \
+    bunga==0.6.0 \
+    bincopy==17.1.0
 
 ENV LC_ALL C.UTF-8
 ENV LANG C.UTF-8

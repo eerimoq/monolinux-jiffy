@@ -23,6 +23,9 @@ punchboot-build-timing-report:
 punchboot-build-quiet:
 	$(MAKE) -C 3pp/punchboot/src BOARD=jiffy LOGLEVEL=0
 
+punchboot-build-force-run-recovery:
+	$(MAKE) -C 3pp/punchboot/src BOARD=jiffy FORCE_RUN_RECOVERY=1
+
 punchboot-clean:
 	$(MAKE) -C 3pp/punchboot/src clean BOARD=jiffy
 

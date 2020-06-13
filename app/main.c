@@ -235,7 +235,7 @@ static void *netlink_main(struct netlink_t *self_p)
     netlink_fd = socket(PF_NETLINK, SOCK_RAW, NETLINK_KOBJECT_UEVENT);
 
     if (netlink_fd == -1) {
-        ML_ERROR("netlink socket()");
+        ML_ERROR("socket()");
 
         return (NULL);
     }
@@ -248,7 +248,7 @@ static void *netlink_main(struct netlink_t *self_p)
     res = bind(netlink_fd, (struct sockaddr *)&nladdr, sizeof(nladdr));
 
     if (res == -1) {
-        ML_ERROR("netlink bind()");
+        ML_ERROR("bind()");
 
         return (NULL);
     }
@@ -262,14 +262,17 @@ static void *netlink_main(struct netlink_t *self_p)
             return (NULL);
         }
 
+        ML_INFO("Event: %s", &self_p->buf[0]);
+
         is_add = (strncmp(&self_p->buf[0], "add@", 4) == 0);
         offset = 0;
 
         while (offset < size) {
-            ML_DEBUG("netlink: %s", &self_p->buf[offset]);
+            ML_DEBUG("%s", &self_p->buf[offset]);
 
             if (is_add) {
                 if (strcmp(&self_p->buf[offset], "DEVNAME=mmcblk0p3") == 0) {
+                    ML_INFO("Found mmcblk0p3.");
                     on_ext4fs();
                 }
             }

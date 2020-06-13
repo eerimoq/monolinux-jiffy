@@ -34,11 +34,13 @@ struct netlink_t {
 
 static struct netlink_t netlink;
 
-static void setup_ext4fs(void)
+static void insert_modules(void)
 {
     int res;
     int i;
     static const char *modules[] = {
+        "/root/fsl_pq_mdio.ko",
+        "/root/fec.ko",
         "/root/mbcache.ko",
         "/root/jbd2.ko",
         "/root/ext4.ko"
@@ -307,7 +309,7 @@ int main()
                        "netlink",
                        ML_LOG_INFO);
     ml_log_object_register(&netlink.log_object);
-    setup_ext4fs();
+    insert_modules();
     set_gpio1_io00_low();
     ml_print_uptime();
     curl_global_init(CURL_GLOBAL_DEFAULT);

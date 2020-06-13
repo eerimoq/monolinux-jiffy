@@ -19,7 +19,8 @@ SRC += ../src/pbconfig.c
 LINUX_MODULE_FILES += build/linux/fs/mbcache.ko
 LINUX_MODULE_FILES += build/linux/fs/jbd2/jbd2.ko
 LINUX_MODULE_FILES += build/linux/fs/ext4/ext4.ko
-
+LINUX_MODULE_FILES += build/linux/drivers/net/ethernet/freescale/fsl_pq_mdio.ko
+LINUX_MODULE_FILES += build/linux/drivers/net/ethernet/freescale/fec.ko
 EXT4FS_IMAGE = build/ext4fs.img
 
 PHONY: fs

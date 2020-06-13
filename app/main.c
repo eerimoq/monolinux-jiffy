@@ -3,6 +3,7 @@
 #include <errno.h>
 #include <stdlib.h>
 #include <sys/stat.h>
+#include <sys/socket.h>
 #include <fcntl.h>
 #include <stdint.h>
 #include <unistd.h>
@@ -25,29 +26,73 @@ struct folder_t {
     int mode;
 };
 
-static void insert_modules(void)
+struct netlink_t {
+    pthread_t pthread;
+    struct ml_log_object_t log_object;
+    char buf[2048];
+};
+
+static struct netlink_t netlink;
+
+static void setup_ext4fs(void)
 {
     int res;
     int i;
     static const char *modules[] = {
+        "/root/mbcache.ko",
+        "/root/jbd2.ko",
+        "/root/ext4.ko"
     };
 
     for (i = 0; i < membersof(modules); i++) {
+        ml_info("Inserting %s.", modules[i]);
+
         res = ml_insert_module(modules[i], "");
 
         if (res == 0) {
-            printf("Successfully inserted '%s'.\n", modules[i]);
+            ml_info("Successfully inserted '%s'.", modules[i]);
         } else {
-            printf("Failed to insert '%s'.\n", modules[i]);
+            ml_error("Failed to insert '%s'.", modules[i]);
         }
     }
+}
+
+static void on_ext4fs(void)
+{
+    char line[256];
+    FILE *file_p;
+    int res;
+
+    ml_info("Mounting /dev/mmcblk0p3 on /ext4fs.");
+
+    res = ml_mount("/dev/mmcblk0p3", "/ext4fs", "ext4", 0, NULL);
+
+    if (res != 0) {
+        ml_error("Mount of /dev/mmcblk0p3 on /ext4fs failed.");
+
+        return;
+    }
+
+    file_p = fopen("/ext4fs/README", "r");
+
+    if (file_p == NULL) {
+        ml_warning("Failed to open /ext4fs/README.");
+
+        return;
+    }
+
+    while (fgets(&line[0], sizeof(line), file_p) != NULL) {
+        ml_info("/ext4fs/README: %s", ml_strip(&line[0], NULL));
+    }
+
+    fclose(file_p);
 }
 
 static void create_folders(void)
 {
     static const struct folder_t folders[] = {
         { "/proc", 0644 },
-        /* { "/sys", 0444 }, */
+        { "/ext4fs", 0777 },
         { "/etc", 0644 }
     };
     int i;
@@ -178,16 +223,88 @@ static void wait_for_eth0_up(void)
     }
 }
 
+static void *netlink_main(struct netlink_t *self_p)
+{
+    int netlink_fd;
+    int res;
+    ssize_t size;
+    int offset;
+    struct sockaddr_nl nladdr;
+    bool is_add;
+
+    netlink_fd = socket(PF_NETLINK, SOCK_RAW, NETLINK_KOBJECT_UEVENT);
+
+    if (netlink_fd == -1) {
+        ML_ERROR("netlink socket()");
+
+        return (NULL);
+    }
+
+    memset(&nladdr, 0, sizeof(nladdr));
+    nladdr.nl_family = AF_NETLINK;
+    nladdr.nl_pid = getpid();
+    nladdr.nl_groups = 1;
+
+    res = bind(netlink_fd, (struct sockaddr *)&nladdr, sizeof(nladdr));
+
+    if (res == -1) {
+        ML_ERROR("netlink bind()");
+
+        return (NULL);
+    }
+
+    self_p->buf[sizeof(self_p->buf) - 1] = '\0';
+
+    while (true) {
+        size = recv(netlink_fd, &self_p->buf[0], sizeof(self_p->buf) - 1, 0);
+
+        if (size <= 0) {
+            return (NULL);
+        }
+
+        is_add = (strncmp(&self_p->buf[0], "add@", 4) == 0);
+        offset = 0;
+
+        while (offset < size) {
+            ML_DEBUG("netlink: %s", &self_p->buf[offset]);
+
+            if (is_add) {
+                if (strcmp(&self_p->buf[offset], "DEVNAME=mmcblk0p3") == 0) {
+                    on_ext4fs();
+                }
+            }
+
+            offset += (strlen(&self_p->buf[offset]) + 1);
+        }
+    }
+
+    close(netlink_fd);
+
+    return (NULL);
+}
+
+static void netlink_start(void)
+{
+    pthread_create(&netlink.pthread,
+                   NULL,
+                   (void *(*)(void *))netlink_main,
+                   &netlink);
+}
+
 int main()
 {
     fprintf(stderr, "main()\n");
 
     pthread_setname_np(pthread_self(), "main");
 
-    insert_modules();
     create_folders();
     create_files();
     ml_init();
+    ml_log_object_init(&netlink.log_object,
+                       "netlink",
+                       ML_LOG_INFO);
+    ml_log_object_register(&netlink.log_object);
+    setup_ext4fs();
     set_gpio1_io00_low();
     ml_print_uptime();
     curl_global_init(CURL_GLOBAL_DEFAULT);
@@ -196,6 +313,7 @@ int main()
     pbconfig_module_init();
     ml_network_init();
     ml_shell_start();
+    netlink_start();
     ml_network_interface_up("eth0");
 
 # if 0

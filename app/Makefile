@@ -16,11 +16,20 @@ INC += $(ML_SOURCES)/punchboot/src/include
 INC += ../include
 SRC += ../src/http_get.c
 SRC += ../src/pbconfig.c
+LINUX_MODULE_FILES += build/linux/fs/mbcache.ko
+LINUX_MODULE_FILES += build/linux/fs/jbd2/jbd2.ko
+LINUX_MODULE_FILES += build/linux/fs/ext4/ext4.ko
 
-default:
+EXT4FS_IMAGE = build/ext4fs.img
+
+PHONY: fs
+
+default: fs
 	$(MAKE) all
 	$(MAKE) $(JIFFY_DTB)
 	$(MAKE) $(JIFFY_BPAK)
+
+fs: $(EXT4FS_IMAGE)
 
 authenticate:
 	punchboot dev -a -s secp256r1:sha256 -n 0xa90f9680 -f $(JIFFY_AUTH_COOKIE)
@@ -37,6 +46,10 @@ upload: default authenticate
 upload-ram: default authenticate
 	echo "Uploading $(JIFFY_BPAK) to RAM."
 	punchboot boot -x -f $(JIFFY_BPAK)
+
+upload-fs: authenticate
+	echo "Uploading $(EXT4FS_IMAGE) to eMMC."
+	punchboot part -w -n 2 -f $(EXT4FS_IMAGE)
 
 include $(ML_ROOT)/make/app.mk
 
@@ -71,3 +84,7 @@ $(JIFFY_BPAK): $(JIFFY_DTB) $(BZIMAGE) $(INITRAMFS)
 	    --key ../3pp/punchboot/pki/secp256r1-key-pair.pem \
 	    --key-id pb-development \
 	    --key-store pb
+
+$(EXT4FS_IMAGE):
+	mkdir -p build
+	./create_file_storage.sh $@

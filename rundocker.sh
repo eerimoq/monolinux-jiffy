@@ -21,4 +21,4 @@ docker run \
        -v /etc/passwd:/etc/passwd:ro \
        -v /etc/shadow:/etc/shadow:ro \
        -v /dev/bus/usb:/dev/bus/usb \
-       eerimoq/monolinux-jiffy:0.13 bash -c "source setup.sh && $COMMAND"
+       eerimoq/monolinux-jiffy:0.14 bash -c "source setup.sh && $COMMAND"

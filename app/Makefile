@@ -3,7 +3,7 @@ JIFFY_DTS = $(LINUX_SRC)/arch/arm/boot/dts/jiffy.dts
 JIFFY_BPAK = build/jiffy.bpak
 BOARD_UUID ?= 1145223f-f951-3d6d-91da-31a89fb59db6
 JIFFY_AUTH_COOKIE ?= $(BOARD_UUID).token
-BZIMAGE ?= $(LINUX_SRC)/arch/arm/boot/zImage
+BZIMAGE ?= $(LINUX_SRC)/arch/arm/boot/Image
 PACKAGES += curl
 PACKAGES += dbg-macro
 PACKAGES += mbedtls
@@ -51,16 +51,16 @@ $(JIFFY_BPAK): $(JIFFY_DTB) $(BZIMAGE) $(INITRAMFS)
 	bpak create $@ --force
 	bpak add $@ \
 	    --meta pb-load-addr \
+	    --from-string 0x80108000 \
+	    --part-ref kernel \
+	    --encoder integer
+	bpak add $@ --part kernel --from-file $(BZIMAGE)
+	bpak add $@ \
+	    --meta pb-load-addr \
 	    --from-string 0x82820000 \
 	    --part-ref dt \
 	    --encoder integer
 	bpak add $@ --part dt --from-file $(JIFFY_DTB)
-	bpak add $@ \
-	    --meta pb-load-addr \
-	    --from-string 0x83000000 \
-	    --part-ref kernel \
-	    --encoder integer
-	bpak add $@ --part kernel --from-file $(BZIMAGE)
 	bpak add $@ \
 	    --meta pb-load-addr \
 	    --from-string 0x83f00000 \

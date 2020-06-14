@@ -14,6 +14,7 @@
 #include <linux/rtnetlink.h>
 #include <net/if.h>
 #include <arpa/inet.h>
+#include <sys/mount.h>
 #include <sys/ioctl.h>
 #include <curl/curl.h>
 #include "ml/ml.h"
@@ -27,19 +28,20 @@ struct folder_t {
 };
 
 struct netlink_t {
+    int netlink_fd;
     pthread_t pthread;
     struct ml_log_object_t log_object;
     char buf[2048];
 };
 
 static struct netlink_t netlink;
+static struct ml_dhcp_client_t dhcp_client;
 
 static void insert_modules(void)
 {
     int res;
     int i;
     static const char *modules[] = {
-        "/root/fsl_pq_mdio.ko",
         "/root/fec.ko",
         "/root/mbcache.ko",
         "/root/jbd2.ko",
@@ -59,20 +61,28 @@ static void insert_modules(void)
     }
 }
 
-static void on_ext4fs(void)
+static void wait_for_fs(void)
 {
     char line[256];
     FILE *file_p;
     int res;
+    int i;
 
     ml_info("Mounting /dev/mmcblk0p3 on /ext4fs.");
 
-    res = ml_mount("/dev/mmcblk0p3", "/ext4fs", "ext4", 0, NULL);
+    while (true) {
+        res = mount("/dev/mmcblk0p3", "/ext4fs", "ext4", 0, NULL);
 
-    if (res != 0) {
-        ml_error("Mount of /dev/mmcblk0p3 on /ext4fs failed.");
+        if (res == 0) {
+            fprintf(stderr, "fs mounted\n");
+            break;
+        } else if (errno != ENXIO) {
+            ml_error("Mount of /dev/mmcblk0p3 on /ext4fs failed with %s.",
+                     strerror(errno));
+            break;
+        }
 
-        return;
+        usleep(100);
     }
 
     file_p = fopen("/ext4fs/README", "r");
@@ -111,8 +121,8 @@ static void create_folders(void)
 
 static void create_files(void)
 {
-    ml_mount("none", "/proc", "proc", 0, NULL);
-    /* ml_mount("none", "/sys", "sysfs", 0, NULL); */
+    mount("none", "/proc", "proc", 0, NULL);
+    /* mount("none", "/sys", "sysfs", 0, NULL); */
 
     mknod("/dev/null", S_IFCHR | 0644, makedev(1, 3));
     mknod("/dev/zero", S_IFCHR | 0644, makedev(1, 5));
@@ -128,7 +138,6 @@ static void create_files(void)
     mknod("/dev/mmcblk0boot0", S_IFBLK | 0644, makedev(179, 16));
     mknod("/dev/mmcblk0boot1", S_IFBLK | 0644, makedev(179, 32));
     mknod("/dev/gpiochip1", S_IFCHR | 0644, makedev(254, 0));
-    mknod("/dev/i2c3", S_IFCHR | 0644, makedev(89, 2));
 
     ml_file_write_string("/etc/resolv.conf", "nameserver 8.8.4.4\n");
 }
@@ -227,38 +236,12 @@ static void wait_for_eth0_up(void)
 
 static void *netlink_main(struct netlink_t *self_p)
 {
-    int netlink_fd;
     int res;
     ssize_t size;
     int offset;
-    struct sockaddr_nl nladdr;
-    bool is_add;
-
-    netlink_fd = socket(PF_NETLINK, SOCK_RAW, NETLINK_KOBJECT_UEVENT);
-
-    if (netlink_fd == -1) {
-        ML_ERROR("socket()");
-
-        return (NULL);
-    }
-
-    memset(&nladdr, 0, sizeof(nladdr));
-    nladdr.nl_family = AF_NETLINK;
-    nladdr.nl_pid = getpid();
-    nladdr.nl_groups = 1;
-
-    res = bind(netlink_fd, (struct sockaddr *)&nladdr, sizeof(nladdr));
-
-    if (res == -1) {
-        ML_ERROR("bind()");
-
-        return (NULL);
-    }
-
-    self_p->buf[sizeof(self_p->buf) - 1] = '\0';
 
     while (true) {
-        size = recv(netlink_fd, &self_p->buf[0], sizeof(self_p->buf) - 1, 0);
+        size = recv(self_p->netlink_fd, &self_p->buf[0], sizeof(self_p->buf) - 1, 0);
 
         if (size <= 0) {
             return (NULL);
@@ -266,34 +249,54 @@ static void *netlink_main(struct netlink_t *self_p)
 
         ML_INFO("Event: %s", &self_p->buf[0]);
 
-        is_add = (strncmp(&self_p->buf[0], "add@", 4) == 0);
         offset = 0;
 
         while (offset < size) {
             ML_DEBUG("%s", &self_p->buf[offset]);
-
-            if (is_add) {
-                if (strcmp(&self_p->buf[offset], "DEVNAME=mmcblk0p3") == 0) {
-                    ML_INFO("Found mmcblk0p3.");
-                    on_ext4fs();
-                }
-            }
-
             offset += (strlen(&self_p->buf[offset]) + 1);
         }
     }
 
-    close(netlink_fd);
-
     return (NULL);
 }
 
-static void netlink_start(void)
+static void netlink_init(struct netlink_t *self_p)
 {
-    pthread_create(&netlink.pthread,
-                   NULL,
-                   (void *(*)(void *))netlink_main,
-                   &netlink);
+    int res;
+    struct sockaddr_nl addr;
+
+    ml_log_object_init(&self_p->log_object, "netlink", ML_LOG_INFO);
+    ml_log_object_register(&self_p->log_object);
+
+    self_p->netlink_fd = socket(PF_NETLINK, SOCK_RAW, NETLINK_KOBJECT_UEVENT);
+
+    if (self_p->netlink_fd == -1) {
+        ML_ERROR("socket()");
+
+        return;
+    }
+
+    memset(&addr, 0, sizeof(addr));
+    addr.nl_family = AF_NETLINK;
+    addr.nl_pid = getpid();
+    addr.nl_groups = 1;
+
+    res = bind(self_p->netlink_fd, (struct sockaddr *)&addr, sizeof(addr));
+
+    if (res == -1) {
+        ML_ERROR("bind()");
+        close(self_p->netlink_fd);
+        self_p->netlink_fd = -1;
+
+        return;
+    }
+
+    self_p->buf[sizeof(self_p->buf) - 1] = '\0';
+}
+
+static void netlink_start(struct netlink_t *self_p)
+{
+    pthread_create(&self_p->pthread, NULL, (void *(*)(void *))netlink_main, self_p);
 }
 
 int main()
@@ -305,21 +308,23 @@ int main()
     create_folders();
     create_files();
     ml_init();
-    ml_log_object_init(&netlink.log_object,
-                       "netlink",
-                       ML_LOG_INFO);
-    ml_log_object_register(&netlink.log_object);
     insert_modules();
-    set_gpio1_io00_low();
-    ml_print_uptime();
-    curl_global_init(CURL_GLOBAL_DEFAULT);
     ml_shell_init();
     http_get_module_init();
     pbconfig_module_init();
     ml_network_init();
+    ml_dhcp_client_init(&dhcp_client, "eth0", ML_LOG_INFO);
+    netlink_init(&netlink);
+    wait_for_fs();
+    ml_log_object_load();
+    set_gpio1_io00_low();
+    ml_print_uptime();
+    curl_global_init(CURL_GLOBAL_DEFAULT);
     ml_shell_start();
-    netlink_start();
+    netlink_start(&netlink);
     ml_network_interface_up("eth0");
+
+    wait_for_eth0_up();
 
 # if 0
     ml_network_interface_configure("eth0",
@@ -328,10 +333,6 @@ int main()
                                    1500);
     ml_network_interface_add_route("eth0", "192.168.0.1");
 #else
-    struct ml_dhcp_client_t dhcp_client;
-
-    wait_for_eth0_up();
-    ml_dhcp_client_init(&dhcp_client, "eth0", ML_LOG_INFO);
     ml_dhcp_client_start(&dhcp_client);
 #endif
 

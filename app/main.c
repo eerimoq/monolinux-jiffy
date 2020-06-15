@@ -324,15 +324,14 @@ int main()
     netlink_start(&netlink);
     ml_network_interface_up("eth0");
 
-    wait_for_eth0_up();
-
 # if 0
     ml_network_interface_configure("eth0",
-                                   "192.168.0.100",
+                                   "198.18.1.2",
                                    "255.255.255.0",
                                    1500);
-    ml_network_interface_add_route("eth0", "192.168.0.1");
+    ml_network_interface_add_route("eth0", "198.18.1.1");
 #else
+    wait_for_eth0_up();
     ml_dhcp_client_start(&dhcp_client);
 #endif
 

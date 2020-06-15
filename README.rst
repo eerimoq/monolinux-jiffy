@@ -32,28 +32,30 @@ Boot time
 **WARNING**: This section is under construction and contains a ton of
 errors.
 
-The final system enters user space in **0.34 seconds**, which is
-3.9 seconds faster than the baseline system. The complete system,
+The final system enters user space in **0.34 seconds**, which is 3.9
+seconds faster than the baseline system. The complete system,
 including an EXT4 file system and networking, is functional in just
-**1.3 seconds**.
+**2.1 seconds**.
 
 The table below contains measurements for both the baseline and final
 systems.
+
+ToDo: Update baseline numbers.
 
 +-------------------+------------------------+---------------------+---------+
 | Measurement point | Elapsed time, baseline | Elapsed time, final | Delta   |
 +===================+========================+=====================+=========+
 | Hardware          | 1 ms                   | 1 ms                | 0 ms    |
 +-------------------+------------------------+---------------------+---------+
-| ROM code          | 190 ms                 | 190 ms              | 0 ms    |
+| ROM code          | 185 ms                 | 185 ms              | 0 ms    |
 +-------------------+------------------------+---------------------+---------+
-| Bootloader        | 490 ms                 | 270 ms              | -220 ms |
+| Bootloader        | x ms                   | 271 ms              | -x ms   |
 +-------------------+------------------------+---------------------+---------+
-| Linux             | 4.3 s                  | 337 ms              | -3.9 s  |
+| Linux             | x s                    | 336 ms              | -x s    |
 +-------------------+------------------------+---------------------+---------+
-| Filesystem        | 4.8 s                  | 400 ms              | -4.4 s  |
+| Filesystem        | x s                    | 405 ms              | -x s    |
 +-------------------+------------------------+---------------------+---------+
-| Network           | 6.8 s                  | 1.3 s               | -5.7 s  |
+| Network           | x s                    | 2.1 s               | -x s    |
 +-------------------+------------------------+---------------------+---------+
 
 Test sequence:
@@ -67,13 +69,13 @@ Test sequence:
 
 #. Unplug the USB cable.
 
-#. Start logic analyzer capture.
+#. Start a logic analyzer capture.
 
 #. Plug in the USB cable.
 
 #. Wait for the system to start.
 
-#. Stop logic analyzer capture.
+#. Stop the logic analyzer capture.
 
 Measurement points:
 
@@ -84,7 +86,7 @@ Measurement points:
    Bootloader: GPIO high
    Linux:      "main" printed
    Filesystem: dmesg "mounted..." - dmesg "Freeing..." + "main" printed
-   Network:    dmesg "REQUESTING to BOUND..." - dmesg "Freeing..." + "main" printed
+   Network:    dmesg "Received OFFER..." - dmesg "Freeing..." + "main" printed
 
 Build and run
 =============

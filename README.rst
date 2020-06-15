@@ -29,18 +29,13 @@ Features
 Boot time
 =========
 
-**WARNING**: This section is under construction and contains a ton of
-errors.
-
-The final system enters user space in **0.34 seconds**, which is 3.9
+The final system enters user space in **0.34 seconds**, which is x
 seconds faster than the baseline system. The complete system,
 including an EXT4 file system and networking, is functional in just
 **2.1 seconds**.
 
 The table below contains measurements for both the baseline and final
 systems.
-
-ToDo: Update baseline numbers.
 
 +-------------------+------------------------+---------------------+---------+
 | Measurement point | Elapsed time, baseline | Elapsed time, final | Delta   |
@@ -58,6 +53,8 @@ ToDo: Update baseline numbers.
 | Network           | x s                    | 2.1 s               | -x s    |
 +-------------------+------------------------+---------------------+---------+
 
+A few words about the final system components and its boot sequence:
+
 Hardware
 
 The time from plugging in the USB cable to releasing the reset of the
@@ -70,11 +67,29 @@ about it as this is properitary NXP software.
 
 Bootloader
 
+Punchboot is a slim and fast bootloader. It reads the Linux kernel,
+ramdisk and device tree from eMMC and verifies them as quickly as
+possible. Then start the Linux kernel.
+
 Linux
+
+The tiny Linux kernel boots in about 60 ms. Both the Linux kernel and
+the ramdisk are **not** compressed, as it is faster to read from eMMC
+than decompressing them.
 
 Filesystem
 
+It takes some time for Linux to detect the eMMC. Insert the ext4
+kernel module while waiting, and mount the file system immediately
+when the eMMC is ready.
+
+The eMMC driver could likely be optimized further to save say 20 ms.
+
 Network
+
+Ethernet auto-negotiation takes a significant amount of time, say 1 to
+3 seconds. There is nothing to do about it, it's how the protocol is
+defined.
 
 Optimizations
 -------------

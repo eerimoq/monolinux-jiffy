@@ -82,10 +82,9 @@ Measurement points:
    Hardware:   RST_N high
    ROM code:   GPIO low
    Bootloader: GPIO high
-   Linux:      ``"main"`` printed
-   Filesystem: ``dmesg "mounted..."`` - ``dmesg "Freeing..."`` + ``"main"`` printed
-   Network:    ``dmesg "REQUESTING to BOUND..."`` - ``dmesg "Freeing..."``
-               + ``"main"`` printed
+   Linux:      "main" printed
+   Filesystem: dmesg "mounted..." - dmesg "Freeing..." + "main" printed
+   Network:    dmesg "REQUESTING to BOUND..." - dmesg "Freeing..." + "main" printed
 
 Build and run
 =============

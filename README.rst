@@ -58,7 +58,28 @@ ToDo: Update baseline numbers.
 | Network           | x s                    | 2.1 s               | -x s    |
 +-------------------+------------------------+---------------------+---------+
 
-Test sequence:
+Optimizations
+-------------
+
+Less functionality in the kernel. No sysfs. No debugfs. Only required
+drivers and file systems. No kernel protection for less padding in the
+binary (saves 2 MB).
+
+Ramdisk and kernel without compression. LZ4 compression is a good
+alternative, only slightly slower.
+
+MMC driver without delays and starting with 52 MHz clock.
+
+Small device tree.
+
+The statically linked init process contains the entire application,
+implemented in C. No forks. No scripts. No shared libraries.
+
+Measurements
+------------
+
+Test sequence
+^^^^^^^^^^^^^
 
 #. Unmount and power off the board.
 
@@ -77,7 +98,8 @@ Test sequence:
 
 #. Stop the logic analyzer capture.
 
-Measurement points:
+Measurement points
+^^^^^^^^^^^^^^^^^^
 
 .. code-block:: text
 

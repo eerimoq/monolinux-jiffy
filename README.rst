@@ -26,6 +26,55 @@ Features
 
 - Efficient and fun unit testing with `Nala`_.
 
+Boot time
+=========
+
+WARNING: This section is under construction and contains a ton of
+errors.
+
+Measurements:
+
++------------+-----------------------+--------------------+------------+
+| Stage      | Baseline (delta) [ms] | Final (delta) [ms] | Delta [ms] |
++============+=======================+====================+============+
+| Hardware   | 1 (1)                 | 1 (1)              | 0          |
+| ROM code   | 190 (190)             | 190 (190)          | 0          |
+| Bootloader | 490 (300)             | 270 (80)           | -220       |
+| Linux      | 4290 (4000)           | 337 (67)           | -3963      |
+| Filesystem | 4790 (500)            | 400 (63)           | -4390      |
+| Network    | 6790 (2000)           | 1300 (900)         | -5690      |
++------------+-----------------------+--------------------+------------+
+
+Test sequence:
+
+#. Unmount and power off the board.
+
+   .. code-block:: text
+
+   $ umount ext4fs
+   $ poweroff
+
+#. Unplug the USB cable.
+
+#. Start logic analyzer capture.
+
+#. Plug in the USB cable.
+
+#. Wait for the system to start.
+
+#. Stop logic analyzer capture.
+
+Measurement points:
+
+.. code-block:: text
+
+   Hardware:   RST_N high
+   ROM code:   GPIO low
+   Bootloader: GPIO high
+   Linux:      "main" printed
+   Filesystem: "filesystem" printed
+   Network:    "ping" printed
+
 Build and run
 =============
 

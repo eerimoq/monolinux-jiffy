@@ -32,7 +32,7 @@ Boot time
 WARNING: This section is under construction and contains a ton of
 errors.
 
-The final system enters user space in **337 milliseconds**, which is
+The final system enters user space in **0.34 seconds**, which is
 3.9 seconds faster than the baseline system. The complete system,
 including an EXT4 file system and networking, is functional in just
 **1.3 seconds**.

@@ -29,7 +29,7 @@ Features
 Boot time
 =========
 
-WARNING: This section is under construction and contains a ton of
+**WARNING**: This section is under construction and contains a ton of
 errors.
 
 The final system enters user space in **0.34 seconds**, which is
@@ -82,9 +82,10 @@ Measurement points:
    Hardware:   RST_N high
    ROM code:   GPIO low
    Bootloader: GPIO high
-   Linux:      "main" printed
-   Filesystem: "filesystem" printed
-   Network:    "ping" printed
+   Linux:      ``"main"`` printed
+   Filesystem: ``dmesg "mounted..."`` - ``dmesg "Freeing..."`` + ``"main"`` printed
+   Network:    ``dmesg "REQUESTING to BOUND..."`` - ``dmesg "Freeing..."``
+               + ``"main"`` printed
 
 Build and run
 =============

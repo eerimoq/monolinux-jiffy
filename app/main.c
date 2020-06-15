@@ -74,7 +74,6 @@ static void wait_for_fs(void)
         res = mount("/dev/mmcblk0p3", "/ext4fs", "ext4", 0, NULL);
 
         if (res == 0) {
-            fprintf(stderr, "fs mounted\n");
             break;
         } else if (errno != ENXIO) {
             ml_error("Mount of /dev/mmcblk0p3 on /ext4fs failed with %s.",
@@ -301,7 +300,7 @@ static void netlink_start(struct netlink_t *self_p)
 
 int main()
 {
-    fprintf(stderr, "main()\n");
+    fprintf(stderr, "main\n");
 
     pthread_setname_np(pthread_self(), "main");
 

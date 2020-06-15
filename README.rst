@@ -62,8 +62,8 @@ Test sequence:
 
    .. code-block:: text
 
-   $ umount ext4fs
-   $ poweroff
+      $ umount ext4fs
+      $ poweroff
 
 #. Unplug the USB cable.
 

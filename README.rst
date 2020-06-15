@@ -58,6 +58,24 @@ ToDo: Update baseline numbers.
 | Network           | x s                    | 2.1 s               | -x s    |
 +-------------------+------------------------+---------------------+---------+
 
+Hardware
+
+The time from plugging in the USB cable to releasing the reset of the
+SoC is neglactable.
+
+ROM code
+
+It's unknown why the ROM code takes so long. It's hard to do anything
+about it as this is properitary NXP software.
+
+Bootloader
+
+Linux
+
+Filesystem
+
+Network
+
 Optimizations
 -------------
 

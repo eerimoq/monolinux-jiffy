@@ -51,7 +51,7 @@ static void insert_modules(void)
     for (i = 0; i < membersof(modules); i++) {
         ml_info("Inserting %s.", modules[i]);
 
-        res = ml_insert_module(modules[i], "");
+        res = ml_insert_module(modules[i], "async_probe");
 
         if (res == 0) {
             ml_info("Successfully inserted '%s'.", modules[i]);

@@ -29,10 +29,10 @@ Features
 Boot time
 =========
 
-The final system enters user space in **0.34 seconds**, which is x
+The final system enters user space in **0.33 seconds**, which is x
 seconds faster than the baseline system. The complete system,
 including an EXT4 file system and networking, is functional in just
-**2.1 seconds**.
+**2.2 seconds**.
 
 The table below contains measurements for both the baseline and final
 systems.
@@ -42,15 +42,15 @@ systems.
 +===================+========================+=====================+=========+
 | Hardware          | 1 ms                   | 1 ms                | 0 ms    |
 +-------------------+------------------------+---------------------+---------+
-| ROM code          | 185 ms                 | 185 ms              | 0 ms    |
+| ROM code          | 185 ms (184 ms)        | 185 ms (184 ms)     | 0 ms    |
 +-------------------+------------------------+---------------------+---------+
-| Bootloader        | x ms                   | 271 ms              | -x ms   |
+| Bootloader        | x ms                   | 271 ms (86 ms)      | -x ms   |
 +-------------------+------------------------+---------------------+---------+
-| Linux             | x s                    | 336 ms              | -x s    |
+| Linux             | x s                    | 333 ms (62 ms)      | -x s    |
 +-------------------+------------------------+---------------------+---------+
-| Filesystem        | x s                    | 405 ms              | -x s    |
+| Filesystem        | x s                    | 373 ms (40 ms)      | -x s    |
 +-------------------+------------------------+---------------------+---------+
-| Network           | x s                    | 2.1 s               | -x s    |
+| Network           | x s                    | 2.2 s  (1.8 s)      | -x s    |
 +-------------------+------------------------+---------------------+---------+
 
 A few words about the final system components and its boot sequence:

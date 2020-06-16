@@ -42,71 +42,55 @@ systems.
 +===================+========================+=====================+=========+
 | Hardware          | 1 ms                   | 1 ms                | 0 ms    |
 +-------------------+------------------------+---------------------+---------+
-| ROM code          | 185 ms (184 ms)        | 185 ms (184 ms)     | 0 ms    |
+| ROM code          | 185 ms                 | 185 ms              | 0 ms    |
 +-------------------+------------------------+---------------------+---------+
-| Bootloader        | x ms                   | 271 ms (86 ms)      | -x ms   |
+| Bootloader        | x ms                   | 271 ms              | -x ms   |
 +-------------------+------------------------+---------------------+---------+
-| Linux             | x s                    | 333 ms (62 ms)      | -x s    |
+| Linux             | x s                    | 333 ms              | -x s    |
 +-------------------+------------------------+---------------------+---------+
-| Filesystem        | x s                    | 373 ms (40 ms)      | -x s    |
+| Filesystem        | x s                    | 373 ms              | -x s    |
 +-------------------+------------------------+---------------------+---------+
-| Network           | x s                    | 2.2 s  (1.8 s)      | -x s    |
+| Network           | x s                    | 2.2 s               | -x s    |
 +-------------------+------------------------+---------------------+---------+
 
-A few words about the final system components and its boot sequence:
+The hardware releases the reset to the i.MX6UL quickly. The ROM code
+reads the bootloader from eMMC, verifies its integrity and jumps to
+it. This takes 185 milliseconds, which is far more than expected. It's
+hard to do anything about it as this is properitary NXP software.
 
-Hardware
+The Punchboot bootloader is rather fast. It reads the Linux kernel,
+ramdisk and device tree from eMMC and verifies them in only 86
+milliseconds. It then start the Linux kernel.
 
-The time from plugging in the USB cable to releasing the reset of the
-SoC is neglactable.
+The final system's tiny Linux kernel boots in about 60 ms, which is
+very fast. This is achieved with a minimal kernel configuration, a few
+patches, a minimal device tree, and not using compressed kernel and
+ramdisk.
 
-ROM code
+The patches are:
 
-It's unknown why the ROM code takes so long. It's hard to do anything
-about it as this is properitary NXP software.
+- Unpack the ramdisk after drivers are probed.
 
-Bootloader
+- Removal of unnecessary delays in the MMC driver.
 
-Punchboot is a slim and fast bootloader. It reads the Linux kernel,
-ramdisk and device tree from eMMC and verifies them as quickly as
-possible. Then start the Linux kernel.
+- Start with MMC clock frequency at 52 MHz instaed of 400 kHz.
 
-Linux
+- Async MMC and FEC (Ethernet) driver probes.
 
-The tiny Linux kernel boots in about 60 ms. Both the Linux kernel and
-the ramdisk are **not** compressed, as it is faster to read from eMMC
-than decompressing them.
+- 10 Hz Ethernet PHY polling instead of 1 Hz.
 
-Filesystem
-
-It takes some time for Linux to detect the eMMC. Insert the ext4
-kernel module while waiting, and mount the file system immediately
-when the eMMC is ready.
-
-The eMMC driver could likely be optimized further to save say 20 ms.
-
-Network
-
-Ethernet auto-negotiation takes a significant amount of time, say 1 to
-3 seconds. There is nothing to do about it, it's how the protocol is
-defined.
-
-Optimizations
--------------
-
-Less functionality in the kernel. No sysfs. No debugfs. Only required
-drivers and file systems. No kernel protection for less padding in the
-binary (saves 2 MB).
-
-Ramdisk and kernel without compression. LZ4 compression is a good
-alternative, only slightly slower.
-
-MMC driver without delays and starting with 52 MHz clock.
-
-Small device tree.
+See ``3pp/linux`` for details.
 
 The statically linked init process contains the entire application,
-implemented in C. No forks. No scripts. No shared libraries.
+implemented in C. No forks. No scripts. No shared libraries. It does
+however contain cURL and other libraries, which makes it about 800 kB.
+
+The EXT4 filesystem is mounted within 40 ms after entering user
+space. The enabler is to start the customized MMC driver early.
+
+Networking takes by far the longest time to get ready. The main reason
+is that Ethernet auto-negotiation takes a significant amount of time,
+about 1 to 3 seconds.
 
 Measurements
 ------------

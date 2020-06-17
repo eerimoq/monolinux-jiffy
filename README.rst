@@ -30,12 +30,12 @@ Boot time
 =========
 
 The final system enters user space in **0.33 seconds**, which is x
-seconds faster than the baseline system. The complete system,
-including an EXT4 file system and networking, is functional in just
-**2.2 seconds**.
+seconds faster than the baseline system. The EXT4 file system ready in
+**0.37 seconds** and networking in **2.2 seconds**.
 
 The table below contains measurements for both the baseline and final
-systems.
+systems. The measurement point definitions are found later in this
+document.
 
 +-------------------+------------------------+---------------------+---------+
 | Measurement point | Elapsed time, baseline | Elapsed time, final | Delta   |
@@ -53,16 +53,18 @@ systems.
 | Network           | x s                    | 2.2 s               | -x s    |
 +-------------------+------------------------+---------------------+---------+
 
-The hardware releases the reset to the i.MX6UL quickly. The ROM code
-reads the bootloader from eMMC, verifies its integrity and jumps to
-it. This takes 185 milliseconds, which is far more than expected. It's
-hard to do anything about it as this is properitary NXP software.
+The hardware releases the reset to the i.MX6UL in about 1
+millisecond. The ROM code reads the bootloader from eMMC, verifies its
+integrity and jumps to it. This takes 185 milliseconds, which is far
+more than expected. It's hard to do anything about it as this is
+properitary NXP software.
 
 The Punchboot bootloader is rather fast out of the box, but to make it
-even faster the device tree patching was removed and the eMMC was
-changes from DDR52 to HS200. The bootloader reads the Linux kernel,
-ramdisk and device tree from eMMC and verifies them in only 86
-milliseconds. It then start the Linux kernel.
+even faster the device tree patching was removed (now done compile
+time) and the eMMC type was changed from DDR52 to HS200. The
+bootloader reads the Linux kernel, ramdisk and device tree from eMMC
+and verifies them in only 86 milliseconds. It then start the Linux
+kernel.
 
 The final system's tiny Linux kernel boots in about 60 ms, which is
 very fast. This is achieved with a minimal kernel configuration, a few
@@ -92,7 +94,8 @@ Networking takes by far the longest time to get ready. The main reason
 is that Ethernet auto-negotiation takes a significant amount of time,
 about 1 to 3 seconds.
 
-Below is selected messages from the Linux kernel log for the boot:
+Below is selected messages from the Linux kernel log. There are a few
+user space messages in the log as well.
 
 .. code-block:: text
 

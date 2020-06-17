@@ -29,48 +29,50 @@ Features
 Boot time
 =========
 
-The final system enters user space **0.33 seconds** after power on,
-which is x seconds faster than the baseline system. The EXT4
+The system enters user space **0.33 seconds** after power on. The EXT4
 filesystem is ready in **0.37 seconds** and networking in **2.2
-seconds**.
+seconds**. Very impressive! A reboot is even faster, only **0.26
+seconds** from executing the reboot command to entering user space.
 
-The table below contains measurements for both the baseline and final
-systems. The measurement point definitions are found later in this
-document.
+Not that all software except the EXT4 filesystem are part of a secure
+boot chain. The system will boot even faster without secure boot, but
+unfortunately I've not had the oppertunity to try it.
 
-+-------------------+------------------------+---------------------+---------+
-| Measurement point | Elapsed time, baseline | Elapsed time, final | Delta   |
-+===================+========================+=====================+=========+
-| Hardware          | 1 ms                   | 1 ms                | 0 ms    |
-+-------------------+------------------------+---------------------+---------+
-| ROM code          | 185 ms                 | 185 ms              | 0 ms    |
-+-------------------+------------------------+---------------------+---------+
-| Bootloader        | x ms                   | 271 ms              | -x ms   |
-+-------------------+------------------------+---------------------+---------+
-| Linux             | x s                    | 333 ms              | -x s    |
-+-------------------+------------------------+---------------------+---------+
-| Filesystem        | x s                    | 373 ms              | -x s    |
-+-------------------+------------------------+---------------------+---------+
-| Network           | x s                    | 2.2 s               | -x s    |
-+-------------------+------------------------+---------------------+---------+
++-------------------+--------------+---------+
+| Measurement point | Elapsed time | Delta   |
++===================+==============+=========+
+| Hardware          | 1 ms         | 0 ms    |
++-------------------+--------------+---------+
+| ROM code          | 185 ms       | 184 ms  |
++-------------------+--------------+---------+
+| Bootloader        | 271 ms       | 86 ms   |
++-------------------+--------------+---------+
+| Linux             | 333 ms       | 62 ms   |
++-------------------+--------------+---------+
+| Filesystem        | 373 ms       | 40 ms   |
++-------------------+--------------+---------+
+| Network           | 2.2 s        | 1.8 s   |
++-------------------+--------------+---------+
 
-The hardware releases the reset to the i.MX6UL in about 1
-millisecond. The ROM code reads the bootloader from eMMC, verifies its
-integrity and jumps to it. This takes 185 milliseconds, which is far
-more than expected. It's hard to do anything about it as this is
-properitary NXP software.
+More information about the system and its boot sequence:
+
+First of all, the power is turned on. The hardware releases the reset
+to the i.MX6UL about 1 millisecond later, and soon the ROM code reads
+the bootloader from eMMC, verifies its integrity and jumps to it. This
+takes 185 milliseconds, which is far more than expected. It's hard to
+do anything about it as this is properitary NXP software.
 
 The Punchboot bootloader is rather fast out of the box, but to make it
 even faster the device tree patching was removed (now done compile
 time) and the eMMC type was changed from DDR52 to HS200. The
-bootloader reads the Linux kernel, ramdisk and device tree from eMMC
-and verifies them in only 86 milliseconds. It then start the Linux
-kernel.
+bootloader reads the Linux kernel (3.5 MB), ramdisk (1.4 MB) and
+device tree (8 kB) from eMMC and verifies them in only 86
+milliseconds. It then start the Linux kernel.
 
-The final system's tiny Linux kernel boots in about 60 ms, which is
-very fast. This is achieved with a minimal kernel configuration, a few
-patches, a minimal device tree, and not using compressed kernel and
-ramdisk.
+The final system's tiny Linux kernel boots in about 62 milliseconds,
+which is very fast. This is achieved with a minimal kernel
+configuration, a few patches, a minimal device tree, and uncompressed
+kernel and ramdisk images.
 
 The `Linux kernel patches`_ are:
 
@@ -82,14 +84,17 @@ The `Linux kernel patches`_ are:
 
 - Async MMC and FEC (Ethernet) driver probes.
 
-- 10 Hz Ethernet PHY polling instead of 1 Hz.
+- 10 Hz Ethernet PHY polling instead of 1 Hz. Would not be needed if
+  the PHY could send an interrupt when its link is up.
 
-The statically linked init process contains the entire application,
-implemented in C. No forks. No scripts. No shared libraries. It does
-however contain cURL and other libraries, which makes it about 800 kB.
+The statically linked init process, part of the ramdisk, contains the
+entire application, implemented in C. No forks. No scripts. No shared
+libraries. It does however contain cURL and other libraries, which
+makes it about 800 kB.
 
-The EXT4 filesystem is mounted within 40 ms after entering user
-space. The enabler is to start the customized MMC driver early.
+The EXT4 filesystem (which does not use dmverity for integrity check)
+is mounted within 40 ms after entering user space. The enabler is to
+start the customized MMC driver early.
 
 Networking takes by far the longest time to get ready. The main reason
 is that Ethernet auto-negotiation takes a significant amount of time,

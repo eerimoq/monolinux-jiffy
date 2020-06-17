@@ -58,7 +58,9 @@ reads the bootloader from eMMC, verifies its integrity and jumps to
 it. This takes 185 milliseconds, which is far more than expected. It's
 hard to do anything about it as this is properitary NXP software.
 
-The Punchboot bootloader is rather fast. It reads the Linux kernel,
+The Punchboot bootloader is rather fast out of the box, but to make it
+even faster the device tree patching was removed and the eMMC was
+changes from DDR52 to HS200. The bootloader reads the Linux kernel,
 ramdisk and device tree from eMMC and verifies them in only 86
 milliseconds. It then start the Linux kernel.
 
@@ -67,7 +69,7 @@ very fast. This is achieved with a minimal kernel configuration, a few
 patches, a minimal device tree, and not using compressed kernel and
 ramdisk.
 
-The patches are:
+The `Linux kernel patches`_ are:
 
 - Unpack the ramdisk after drivers are probed.
 
@@ -79,8 +81,6 @@ The patches are:
 
 - 10 Hz Ethernet PHY polling instead of 1 Hz.
 
-See ``3pp/linux`` for details.
-
 The statically linked init process contains the entire application,
 implemented in C. No forks. No scripts. No shared libraries. It does
 however contain cURL and other libraries, which makes it about 800 kB.
@@ -91,6 +91,30 @@ space. The enabler is to start the customized MMC driver early.
 Networking takes by far the longest time to get ready. The main reason
 is that Ethernet auto-negotiation takes a significant amount of time,
 about 1 to 3 seconds.
+
+Below is selected messages from the Linux kernel log for the boot:
+
+.. code-block:: text
+
+   [    0.000000] Booting Linux on physical CPU 0x0
+   [    0.022802] Unpacking initramfs...
+   [    0.025535] mmc0: SDHCI controller on 2190000.usdhc [2190000.usdhc] using ADMA
+   [    0.034262] Freeing initrd memory: 1416K
+   [    0.035840] Freeing unused kernel memory: 172K
+   [    0.041533] 1970-01-01 00:00:00 INFO default Successfully inserted '/root/fec.ko'.
+   [    0.053621] 1970-01-01 00:00:00 INFO default Successfully inserted '/root/ext4.ko'.
+   [    0.057696] fec 2188000.ethernet eth0: registered PHC device 0
+   [    0.058009] mmcblk0: p1 p2 p3 p4 p5 p6
+   [    0.076813] EXT4-fs (mmcblk0p3): mounted filesystem with ordered data mode. Opts: (null)
+   [    0.082744] 1970-01-01 00:00:00 INFO default /ext4fs/README: +-----------------+
+   [    0.082812] 1970-01-01 00:00:00 INFO default /ext4fs/README: | Monolinux Jiffy |
+   [    0.082869] 1970-01-01 00:00:00 INFO default /ext4fs/README: +-----------------+
+   [    0.114466] SMSC LAN8710/LAN8720 2188000.ethernet-1:01: attached PHY driver [SMSC LAN8710/LAN8720] (mii_bus:phy_addr=2188000.ethernet-1:01, irq=POLL)
+   [    0.114607] IPv6: ADDRCONF(NETDEV_UP): eth0: link is not ready
+   [    1.892754] fec 2188000.ethernet eth0: Link is Up - 100Mbps/Full - flow control rx/tx
+   [    1.892791] IPv6: ADDRCONF(NETDEV_CHANGE): eth0: link becomes ready
+   [    1.893268] 1970-01-01 00:00:01 INFO dhcp_client Starting on interface 'eth0'.
+   [    1.900520] 1970-01-01 00:00:01 INFO dhcp_client Received OFFER packet.
 
 Measurements
 ------------
@@ -149,3 +173,5 @@ This requires that punchboot is running and ready to execute commands.
 .. _Monolinux: https://github.com/eerimoq/monolinux
 
 .. _Nala: https://github.com/eerimoq/nala
+
+.. _Linux kernel patches: https://github.com/eerimoq/linux/compare/e7405910ca5553eae8744af4e5c03e64ee048cb1..a3f1f66ab66b1c03731530e86dcc7262237a437d

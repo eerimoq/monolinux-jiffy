@@ -64,17 +64,18 @@ the bootloader from eMMC, verifies its integrity and jumps to it. This
 takes 185 milliseconds, which is far more than expected. It's hard to
 do anything about it as this is properitary NXP software.
 
-The Punchboot bootloader is rather fast out of the box, but to make it
-even faster the device tree patching was removed (now done compile
+The `Punchboot`_ bootloader is very fast out of the box, and to make
+it even faster the device tree patching was removed (now done compile
 time) and the eMMC type was changed from DDR52 to HS200. The
 bootloader reads the Linux kernel (3.5 MB), ramdisk (1.4 MB) and
 device tree (8 kB) from eMMC and verifies them in only 86
-milliseconds. It then start the Linux kernel.
+milliseconds. It then start the Linux kernel. No other bootloader was
+tested, not even U-Boot.
 
-The final system's tiny Linux kernel boots in about 62 milliseconds,
-which is very fast. This is achieved with a minimal kernel
-configuration, a few patches, a minimal device tree, and uncompressed
-kernel and ramdisk images.
+The system's tiny Linux kernel (version 4.14.78) boots in about 62
+milliseconds, which is very fast. This is achieved with a minimal
+kernel configuration, a few patches, a minimal device tree, and
+uncompressed kernel and ramdisk images.
 
 Here is a brief description of the `Linux kernel patches`_.
 
@@ -114,6 +115,8 @@ the log as well.
 .. code-block:: text
 
    [    0.000000] Booting Linux on physical CPU 0x0
+   [    0.000000] Linux version 4.14.78 (erik@erik-GR8) (gcc version 9.1.0 (GCC)) #1 Tue Jun 16 19:18:46 UTC 2020
+
    [    0.022802] Unpacking initramfs...
    [    0.025535] mmc0: SDHCI controller on 2190000.usdhc [2190000.usdhc] using ADMA
    [    0.034262] Freeing initrd memory: 1416K
@@ -192,3 +195,5 @@ This requires that punchboot is running and ready to execute commands.
 .. _Nala: https://github.com/eerimoq/nala
 
 .. _Linux kernel patches: https://github.com/eerimoq/linux/compare/e7405910ca5553eae8744af4e5c03e64ee048cb1..a3f1f66ab66b1c03731530e86dcc7262237a437d
+
+.. _Punchboot: https://github.com/jonasblixt/punchboot

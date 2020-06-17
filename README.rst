@@ -29,12 +29,13 @@ Features
 Boot time
 =========
 
-The system enters user space **0.33 seconds** after power on. The EXT4
+The system (i.MX6UL with a 528 MHz ARMv7-A CPU, 1 GB DDR3 RAM, 4 GB
+eMMC) enters user space **0.33 seconds** after power on. The EXT4
 filesystem is ready in **0.37 seconds** and networking in **2.2
 seconds**. Very impressive! A reboot is even faster, only **0.26
-seconds** from executing the reboot command to entering user space.
+seconds** from issuing the reboot to entering user space.
 
-Not that all software except the EXT4 filesystem are part of a secure
+Note that all software except the EXT4 filesystem are part of a secure
 boot chain. The system will boot even faster without secure boot, but
 unfortunately I've not had the oppertunity to try it.
 
@@ -74,34 +75,40 @@ which is very fast. This is achieved with a minimal kernel
 configuration, a few patches, a minimal device tree, and uncompressed
 kernel and ramdisk images.
 
-The `Linux kernel patches`_ are:
+Here is a brief description of the `Linux kernel patches`_.
 
 - Unpack the ramdisk after drivers are probed.
 
-- Removal of unnecessary delays in the MMC driver.
+- Removal of unnecessary delays in the MMC driver (I hope). This is
+  possible since we know excatly which MMC is mounted on the board,
+  and that it is always powered on.
 
-- Start with MMC clock frequency at 52 MHz instaed of 400 kHz.
+- Start with MMC clock frequency at 52 MHz instaed of 400 kHz. Same
+  reasoning as in the previous bullet.
 
-- Async MMC and FEC (Ethernet) driver probes.
+- Async MMC and FEC (Ethernet) driver probes to do other
+  initialization in parallel.
 
 - 10 Hz Ethernet PHY polling instead of 1 Hz. Would not be needed if
-  the PHY could send an interrupt when its link is up.
+  the PHY sends an interrupt when its link is up.
 
 The statically linked init process, part of the ramdisk, contains the
-entire application, implemented in C. No forks. No scripts. No shared
-libraries. It does however contain cURL and other libraries, which
-makes it about 800 kB.
+entire application. It's implemented in C for low overhead, both in
+RAM and CPU time. No forks. No scripts. No shared libraries. It does
+however contain cURL and other libraries, which makes it about 800 kB.
 
-The EXT4 filesystem (which does not use dmverity for integrity check)
-is mounted within 40 ms after entering user space. The enabler is to
+The EXT4 filesystem (which is not integrity checked with dmverity) is
+mounted within 40 ms after entering user space. The enabler is to
 start the customized MMC driver early.
 
 Networking takes by far the longest time to get ready. The main reason
 is that Ethernet auto-negotiation takes a significant amount of time,
-about 1 to 3 seconds.
+about 1 to 3 seconds. Users that do not need Ethernet, or can use a
+static link configuration, can save a bunch of time.
 
-Below is selected messages from the Linux kernel log. There are a few
-user space messages in the log as well.
+Below is selected messages from the Linux kernel log to better
+understand what is going on. There are a few user space messages in
+the log as well.
 
 .. code-block:: text
 
@@ -124,7 +131,7 @@ user space messages in the log as well.
    [    1.892791] IPv6: ADDRCONF(NETDEV_CHANGE): eth0: link becomes ready
    [    1.893268] 1970-01-01 00:00:01 INFO dhcp_client Starting on interface 'eth0'.
    [    1.900520] 1970-01-01 00:00:01 INFO dhcp_client Received OFFER packet.
-
+   
 Measurements
 ------------
 

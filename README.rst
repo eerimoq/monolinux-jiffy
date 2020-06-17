@@ -29,11 +29,12 @@ Features
 Boot time
 =========
 
-The system (i.MX6UL with a 528 MHz ARMv7-A CPU, 1 GB DDR3 RAM, 4 GB
-eMMC) enters user space **0.33 seconds** after power on. The EXT4
-filesystem is ready in **0.37 seconds** and networking in **2.2
-seconds**. Very impressive! A reboot is even faster, only **0.26
-seconds** from issuing the reboot to entering user space.
+The embedded Linux based system enters user space **0.33 seconds**
+after power on. The EXT4 filesystem is ready in **0.37 seconds** and
+networking in **2.2 seconds**. Very impressive for an i.MX6UL SoC with
+a 528 MHz ARMv7-A CPU, 1 GB DDR3 RAM and 4 GB eMMC! A reboot is even
+faster, only **0.26 seconds** from issuing the reboot to entering user
+space.
 
 Note that all software except the EXT4 filesystem are part of a secure
 boot chain. The system will boot even faster without secure boot, but
@@ -131,7 +132,7 @@ the log as well.
    [    1.892791] IPv6: ADDRCONF(NETDEV_CHANGE): eth0: link becomes ready
    [    1.893268] 1970-01-01 00:00:01 INFO dhcp_client Starting on interface 'eth0'.
    [    1.900520] 1970-01-01 00:00:01 INFO dhcp_client Received OFFER packet.
-   
+
 Measurements
 ------------
 

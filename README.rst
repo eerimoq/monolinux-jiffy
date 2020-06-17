@@ -29,9 +29,9 @@ Features
 Boot time
 =========
 
-The final system enters user space in **0.33 seconds**, which is x
-seconds faster than the baseline system. The EXT4 file system ready in
-**0.37 seconds** and networking in **2.2 seconds**.
+The final system enters user space **0.33 seconds** after power on,
+which is x seconds faster than the baseline system. The EXT4 file
+system is ready in **0.37 seconds** and networking in **2.2 seconds**.
 
 The table below contains measurements for both the baseline and final
 systems. The measurement point definitions are found later in this

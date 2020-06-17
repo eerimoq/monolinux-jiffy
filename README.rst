@@ -49,11 +49,11 @@ unfortunately I've not had the oppertunity to try it.
 +-------------------+--------------+---------+
 | Bootloader        | 271 ms       | 86 ms   |
 +-------------------+--------------+---------+
-| Linux             | 333 ms       | 62 ms   |
+| Linux user space  | 333 ms       | 62 ms   |
 +-------------------+--------------+---------+
-| Filesystem        | 373 ms       | 40 ms   |
+| EXT4 filesystem   | 373 ms       | 40 ms   |
 +-------------------+--------------+---------+
-| Network           | 2.2 s        | 1.8 s   |
+| TCP/IP networking | 2.2 s        | 1.8 s   |
 +-------------------+--------------+---------+
 
 More information about the system and its boot sequence:

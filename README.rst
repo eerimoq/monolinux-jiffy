@@ -16,7 +16,7 @@ Hardware: https://github.com/jonasblixt/jiffy
 Features
 ========
 
-- Fast development cylce (a matter of seconds from source code change
+- Fast development cycle (a matter of seconds from source code change
   to entering user space).
 
 - Everything the Linux kernel provides (networking, filesystems,

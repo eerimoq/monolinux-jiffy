@@ -43,7 +43,7 @@ unfortunately I've not had the oppertunity to try it.
 +-------------------+--------------+---------+
 | Measurement point | Elapsed time | Delta   |
 +===================+==============+=========+
-| Hardware          | 1 ms         | 0 ms    |
+| Hardware          | 1 ms         | 1 ms    |
 +-------------------+--------------+---------+
 | ROM code          | 185 ms       | 184 ms  |
 +-------------------+--------------+---------+

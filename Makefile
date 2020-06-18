@@ -36,6 +36,10 @@ punchboot-upload:
 punchboot-upload-ram:
 	sudo uuu 3pp/punchboot/src/build-jiffy/pb_signed_uuu.imx
 
+punchboot-reset:
+	$(MAKE) -C app authenticate
+	punchboot boot -r
+
 docker-image:
 	rm -rf docker/punchboot
 	cp -r 3pp/punchboot docker

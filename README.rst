@@ -86,7 +86,7 @@ Here is a brief description of the `Linux kernel patches`_.
   and that it is always powered on.
 
 - Start with MMC clock frequency at 52 MHz instaed of 400 kHz. Same
-  reasoning as in the previous bullet.
+  reasoning as in the previous bullet, but not according to spec.
 
 - Async MMC and FEC (Ethernet) driver probes to do other
   initialization in parallel.

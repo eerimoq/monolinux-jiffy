@@ -136,6 +136,35 @@ the log as well.
    [    1.893268] 1970-01-01 00:00:01 INFO dhcp_client Starting on interface 'eth0'.
    [    1.900520] 1970-01-01 00:00:01 INFO dhcp_client Received OFFER packet.
 
+More ideas:
+
+- Compile for the Thumb instruction set for significantely smaller
+  binaries. Has been tested, but the init process crashes.
+
+  .. code-block:: text
+
+     [    0.560005] Freeing unused kernel memory: 1024K
+     [    0.565155] Internal error: Oops - BUG: 0 [#1] THUMB2
+     [    0.570222] Modules linked in:
+     [    0.573294] CPU: 0 PID: 1 Comm: init Not tainted 4.14.78 #19
+     [    0.578959] Hardware name: Freescale i.MX6 Ultralite (Device Tree)
+     [    0.585148] task: c7009800 task.stack: c702e000
+     [    0.589685] pc : [<c0205ba2>]    lr : [<c0205ba2>]    psr: 60000013
+     [    0.595957] sp : c702ffa8  ip : 50c53c7d  fp : 00000000
+     [    0.601187] r10: 00000000  r9 : c702e000  r8 : c0205dc4
+     [    0.606420] r7 : 000f0005  r6 : 00000000  r5 : 00000000  r4 : 000224d4
+     [    0.612956] r3 : c702e000  r2 : 0002254c  r1 : c702ffb0  r0 : 00000000
+     [    0.619492] Flags: nZCv  IRQs on  FIQs on  Mode SVC_32  ISA ARM  Segment none
+     [    0.626633] Control: 50c53c7d  Table: 871b0059  DAC: 00000051
+     [    0.632387] Process init (pid: 1, stack limit = 0xc702e208)
+     [    0.637967] Stack: (0xc702ffa8 to 0xc7030000)
+     [    0.642340] ffa0:                   000224d4 00000000 0002254c 00022098 beca7fda 00022094
+     [    0.650531] ffc0: 000224d4 00000000 00000000 000f0005 00000000 6474e551 00000000 00000000
+     [    0.658722] ffe0: 00000037 beca7df0 00010688 000111bc 20000010 0002254c 00000000 00000000
+     [    0.666920] Code: 00004770 00000000 00000000 b6720000 (2008f8d9)
+     [    0.673020] ---[ end trace e0ea9fb97d0d2058 ]---
+     [    0.677644] Kernel panic - not syncing: Fatal exception
+
 Measurements
 ------------
 

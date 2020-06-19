@@ -138,7 +138,7 @@ the log as well.
 
 More ideas:
 
-- Compile for the Thumb instruction set for significantely smaller
+- Compile for the Thumb instruction set for significantly smaller
   binaries. Has been tested, but the init process crashes.
 
   .. code-block:: text

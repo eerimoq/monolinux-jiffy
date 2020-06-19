@@ -165,6 +165,9 @@ More ideas:
      [    0.673020] ---[ end trace e0ea9fb97d0d2058 ]---
      [    0.677644] Kernel panic - not syncing: Fatal exception
 
+- The MMC is setup by the bootlaoder. Update the Linux MMC driver to
+  take advantage of this. No additional setup should be needed.
+
 Measurements
 ------------
 

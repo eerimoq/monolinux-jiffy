@@ -42,7 +42,6 @@ static void insert_modules(void)
     int res;
     int i;
     static const char *modules[] = {
-        "/root/fec.ko",
         "/root/mbcache.ko",
         "/root/jbd2.ko",
         "/root/ext4.ko"
@@ -51,7 +50,7 @@ static void insert_modules(void)
     for (i = 0; i < membersof(modules); i++) {
         ml_info("Inserting %s.", modules[i]);
 
-        res = ml_insert_module(modules[i], "async_probe");
+        res = ml_insert_module(modules[i], "");
 
         if (res == 0) {
             ml_info("Successfully inserted '%s'.", modules[i]);

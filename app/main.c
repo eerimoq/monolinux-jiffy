@@ -42,9 +42,9 @@ static void insert_modules(void)
     int res;
     int i;
     static const char *modules[] = {
-        "/root/mbcache.ko",
-        "/root/jbd2.ko",
-        "/root/ext4.ko"
+        /* "/root/mbcache.ko", */
+        /* "/root/jbd2.ko", */
+        /* "/root/ext4.ko" */
     };
 
     for (i = 0; i < membersof(modules); i++) {
@@ -69,7 +69,7 @@ static void wait_for_fs(void)
 
     ml_info("Mounting /dev/mmcblk0p3 on /ext4fs.");
 
-    while (true) {
+    for (i = 0; i < 1000; i++) {
         res = mount("/dev/mmcblk0p3", "/ext4fs", "ext4", 0, NULL);
 
         if (res == 0) {
@@ -80,7 +80,12 @@ static void wait_for_fs(void)
             break;
         }
 
-        usleep(100);
+        usleep(250);
+    }
+
+    if (i == 1000) {
+        ml_error("Mount /dev/mmcblk0p3 on /ext4fs failed with %s.",
+                 strerror(errno));
     }
 
     file_p = fopen("/ext4fs/README", "r");

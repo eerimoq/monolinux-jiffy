@@ -37,7 +37,6 @@ struct netlink_t {
 
 static struct netlink_t netlink;
 static struct ml_dhcp_client_t dhcp_client;
-static struct one_wire_t one_wire;
 
 static void insert_modules(const char *modules[], int length)
 {
@@ -329,7 +328,7 @@ int main()
     ml_shell_init();
     http_get_module_init();
     pbconfig_module_init();
-    one_wire_init(&one_wire);
+    one_wire_init();
     ml_network_init();
     ml_dhcp_client_init(&dhcp_client, "eth0", ML_LOG_INFO);
     netlink_init(&netlink);
@@ -342,7 +341,7 @@ int main()
     netlink_start(&netlink);
     ml_network_interface_up("eth0");
     insert_one_wire_modules();
-    one_wire_start(&one_wire);
+    one_wire_start();
 
 # if 0
     ml_network_interface_configure("eth0",

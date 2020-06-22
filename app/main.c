@@ -20,6 +20,7 @@
 #include "ml/ml.h"
 #include "jiffy/pbconfig.h"
 #include "jiffy/http_get.h"
+#include "jiffy/one_wire.h"
 #include "bunga_server_linux.h"
 
 struct folder_t {
@@ -36,19 +37,14 @@ struct netlink_t {
 
 static struct netlink_t netlink;
 static struct ml_dhcp_client_t dhcp_client;
+static struct one_wire_t one_wire;
 
-static void insert_modules(void)
+static void insert_modules(const char *modules[], int length)
 {
     int res;
     int i;
-    static const char *modules[] = {
-        "/root/fec.ko",
-        "/root/mbcache.ko",
-        "/root/jbd2.ko",
-        "/root/ext4.ko"
-    };
 
-    for (i = 0; i < membersof(modules); i++) {
+    for (i = 0; i < length; i++) {
         ml_info("Inserting %s.", modules[i]);
 
         res = ml_insert_module(modules[i], "async_probe");
@@ -61,12 +57,35 @@ static void insert_modules(void)
     }
 }
 
+static void insert_early_modules(void)
+{
+    static const char *modules[] = {
+        "/root/fec.ko",
+        "/root/mbcache.ko",
+        "/root/jbd2.ko",
+        "/root/ext4.ko"
+    };
+
+    insert_modules(modules, membersof(modules));
+}
+
+static void insert_one_wire_modules(void)
+{
+    static const char *modules[] = {
+        "/root/cn.ko",
+        "/root/wire.ko",
+        "/root/w1_therm.ko",
+        "/root/w1-gpio.ko"
+    };
+
+    insert_modules(modules, membersof(modules));
+}
+
 static void wait_for_fs(void)
 {
     char line[256];
     FILE *file_p;
     int res;
-    int i;
 
     ml_info("Mounting /dev/mmcblk0p3 on /ext4fs.");
 
@@ -235,7 +254,6 @@ static void wait_for_eth0_up(void)
 
 static void *netlink_main(struct netlink_t *self_p)
 {
-    int res;
     ssize_t size;
     int offset;
 
@@ -307,10 +325,11 @@ int main()
     create_folders();
     create_files();
     ml_init();
-    insert_modules();
+    insert_early_modules();
     ml_shell_init();
     http_get_module_init();
     pbconfig_module_init();
+    one_wire_init(&one_wire);
     ml_network_init();
     ml_dhcp_client_init(&dhcp_client, "eth0", ML_LOG_INFO);
     netlink_init(&netlink);
@@ -322,6 +341,8 @@ int main()
     ml_shell_start();
     netlink_start(&netlink);
     ml_network_interface_up("eth0");
+    insert_one_wire_modules();
+    one_wire_start(&one_wire);
 
 # if 0
     ml_network_interface_configure("eth0",

@@ -16,10 +16,15 @@ INC += $(ML_SOURCES)/punchboot/src/include
 INC += ../include
 SRC += ../src/http_get.c
 SRC += ../src/pbconfig.c
+SRC += ../src/one_wire.c
 LINUX_MODULE_FILES += build/linux/fs/mbcache.ko
 LINUX_MODULE_FILES += build/linux/fs/jbd2/jbd2.ko
 LINUX_MODULE_FILES += build/linux/fs/ext4/ext4.ko
 LINUX_MODULE_FILES += build/linux/drivers/net/ethernet/freescale/fec.ko
+LINUX_MODULE_FILES += build/linux/drivers/w1/slaves/w1_therm.ko
+LINUX_MODULE_FILES += build/linux/drivers/w1/masters/w1-gpio.ko
+LINUX_MODULE_FILES += build/linux/drivers/w1/wire.ko
+LINUX_MODULE_FILES += build/linux/drivers/connector/cn.ko
 EXT4FS_IMAGE = build/ext4fs.img
 MONOLINUX_C_LIBRARY_LOG_OBJECT_TXT = "\"/ext4fs/ml/log_object.txt\""
 

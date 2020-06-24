@@ -1,4 +1,4 @@
-FROM ubuntu:18.04
+FROM ubuntu:20.04
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -56,17 +56,18 @@ RUN rm -rf punchboot
 
 COPY uuu /usr/bin
 
+ENV LC_ALL C.UTF-8
+ENV LANG C.UTF-8
+
 RUN pip3 install \
     ecdsa \
     imx \
     pbtools \
     messi \
     nala==0.175.1 \
-    bunga==0.6.0 \
+    systest==5.9.0 \
+    bunga==0.38.0 \
     bincopy==17.1.0
-
-ENV LC_ALL C.UTF-8
-ENV LANG C.UTF-8
 
 RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 

@@ -1,3 +1,5 @@
+.PHONY: test
+
 default:
 	$(MAKE) -C app default
 
@@ -7,6 +9,9 @@ clean:
 
 test:
 	$(MAKE) -C tst
+
+system-test:
+	python3 test/test.py $(ARGS)
 
 upload:
 	$(MAKE) -C app upload

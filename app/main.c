@@ -73,7 +73,6 @@ static void insert_one_wire_modules(void)
     static const char *modules[] = {
         "/root/cn.ko",
         "/root/wire.ko",
-        "/root/w1_therm.ko",
         "/root/w1-gpio.ko"
     };
 
@@ -86,15 +85,15 @@ static void wait_for_fs(void)
     FILE *file_p;
     int res;
 
-    ml_info("Mounting /dev/mmcblk0p3 on /ext4fs.");
+    ml_info("Mounting /dev/mmcblk0p3 on /disk.");
 
     while (true) {
-        res = mount("/dev/mmcblk0p3", "/ext4fs", "ext4", 0, NULL);
+        res = mount("/dev/mmcblk0p3", "/disk", "ext4", 0, NULL);
 
         if (res == 0) {
             break;
         } else if (errno != ENXIO) {
-            ml_error("Mount of /dev/mmcblk0p3 on /ext4fs failed with %s.",
+            ml_error("Mount of /dev/mmcblk0p3 on /disk failed with %s.",
                      strerror(errno));
             break;
         }
@@ -102,16 +101,16 @@ static void wait_for_fs(void)
         usleep(100);
     }
 
-    file_p = fopen("/ext4fs/README", "r");
+    file_p = fopen("/disk/README", "r");
 
     if (file_p == NULL) {
-        ml_warning("Failed to open /ext4fs/README.");
+        ml_warning("Failed to open /disk/README.");
 
         return;
     }
 
     while (fgets(&line[0], sizeof(line), file_p) != NULL) {
-        ml_info("/ext4fs/README: %s", ml_strip(&line[0], NULL));
+        ml_info("/disk/README: %s", ml_strip(&line[0], NULL));
     }
 
     fclose(file_p);
@@ -121,7 +120,7 @@ static void create_folders(void)
 {
     static const struct folder_t folders[] = {
         { "/proc", 0644 },
-        { "/ext4fs", 0777 },
+        { "/disk", 0777 },
         { "/etc", 0644 }
     };
     int i;

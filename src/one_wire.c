@@ -1,6 +1,5 @@
 #define _GNU_SOURCE
 #include <errno.h>
-#include <math.h>
 #include <stdlib.h>
 #include <stdint.h>
 #include <unistd.h>
@@ -314,7 +313,7 @@ static void ds18b20_handle_read_temperature(
     /* ToDo: Enqueue the request if another request is already active,
        or possibly allow multiple requests in parallel. */
     if (self_p->ds18b20.response_queue_p != NULL) {
-        ds18b20_finalize(self_p, -EBUSY, NAN);
+        ds18b20_finalize(self_p, -EBUSY, 0.0f);
 
         return;
     }
@@ -331,7 +330,7 @@ static void ds18b20_handle_read_temperature(
     if (self_p->ds18b20.seqno >= 0) {
         ds18b20_set_state(self_p, ds18b20_state_wait_for_convert_done_t);
     } else {
-        ds18b20_finalize(self_p, self_p->ds18b20.seqno, NAN);
+        ds18b20_finalize(self_p, self_p->ds18b20.seqno, 0.0f);
     }
 }
 
@@ -350,7 +349,7 @@ static void ds18b20_handle_read_temperature_timeout(struct module_t *self_p)
     if (self_p->ds18b20.seqno >= 0) {
         ds18b20_set_state(self_p, ds18b20_state_wait_for_read_done_t);
     } else {
-        ds18b20_finalize(self_p, self_p->ds18b20.seqno, NAN);
+        ds18b20_finalize(self_p, self_p->ds18b20.seqno, 0.0f);
     }
 }
 
@@ -395,7 +394,7 @@ static void ds18b20_handle_read_temperature_slave_response(
     int offset;
 
     if (nl_msg_p->status != 0) {
-        ds18b20_finalize(self_p, -nl_msg_p->status, NAN);
+        ds18b20_finalize(self_p, -nl_msg_p->status, 0.0f);
 
         return;
     }

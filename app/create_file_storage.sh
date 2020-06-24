@@ -24,6 +24,8 @@ sudo sh -c "cat <<EOF > $MOUNT_POINT/README
 +-----------------+
 EOF"
 
+sudo mkdir -p $MOUNT_POINT/ml
+
 if [ -e "$DATA_DIR" ] ; then
     sudo cp -r $DATA_DIR $MOUNT_POINT
 fi

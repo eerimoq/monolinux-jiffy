@@ -21,12 +21,11 @@ LINUX_MODULE_FILES += build/linux/fs/mbcache.ko
 LINUX_MODULE_FILES += build/linux/fs/jbd2/jbd2.ko
 LINUX_MODULE_FILES += build/linux/fs/ext4/ext4.ko
 LINUX_MODULE_FILES += build/linux/drivers/net/ethernet/freescale/fec.ko
-LINUX_MODULE_FILES += build/linux/drivers/w1/slaves/w1_therm.ko
 LINUX_MODULE_FILES += build/linux/drivers/w1/masters/w1-gpio.ko
 LINUX_MODULE_FILES += build/linux/drivers/w1/wire.ko
 LINUX_MODULE_FILES += build/linux/drivers/connector/cn.ko
-EXT4FS_IMAGE = build/ext4fs.img
-MONOLINUX_C_LIBRARY_LOG_OBJECT_TXT = "\"/ext4fs/ml/log_object.txt\""
+DISK_IMAGE = build/disk.img
+MONOLINUX_C_LIBRARY_LOG_OBJECT_TXT = "\"/disk/ml/log_object.txt\""
 
 PHONY: fs
 
@@ -35,7 +34,7 @@ default: fs
 	$(MAKE) $(JIFFY_DTB)
 	$(MAKE) $(JIFFY_BPAK)
 
-fs: $(EXT4FS_IMAGE)
+fs: $(DISK_IMAGE)
 
 authenticate:
 	punchboot dev -a -s secp256r1:sha256 -n 0xa90f9680 -f $(JIFFY_AUTH_COOKIE)
@@ -54,8 +53,8 @@ upload-ram: default authenticate
 	punchboot boot -x -f $(JIFFY_BPAK)
 
 upload-fs: authenticate
-	echo "Uploading $(EXT4FS_IMAGE) to eMMC."
-	punchboot part -w -n 2 -f $(EXT4FS_IMAGE)
+	echo "Uploading $(DISK_IMAGE) to eMMC."
+	punchboot part -w -n 2 -f $(DISK_IMAGE)
 
 include $(ML_ROOT)/make/app.mk
 
@@ -91,6 +90,6 @@ $(JIFFY_BPAK): $(JIFFY_DTB) $(BZIMAGE) $(INITRAMFS)
 	    --key-id pb-development \
 	    --key-store pb
 
-$(EXT4FS_IMAGE):
+$(DISK_IMAGE):
 	mkdir -p build
 	./create_file_storage.sh $@

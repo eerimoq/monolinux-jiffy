@@ -567,7 +567,7 @@ static int init(struct module_t *self_p)
     res = epoll_ctl(self_p->epoll_fd, EPOLL_CTL_ADD, self_p->put_fd, &event);
 
     if (res == -1) {
-        ml_error("epoll_ctl_add");
+        ML_ERROR("epoll_ctl_add");
     }
 
     return (0);

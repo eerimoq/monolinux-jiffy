@@ -13,6 +13,8 @@ docker run \
        --tty \
        --rm \
        --user $(id -u):$(id -g) \
+       --group-add dialout \
+       --group-add sudo \
        --workdir=$PWD \
        --net host \
        --privileged \
@@ -21,4 +23,4 @@ docker run \
        -v /etc/passwd:/etc/passwd:ro \
        -v /etc/shadow:/etc/shadow:ro \
        -v /dev/bus/usb:/dev/bus/usb \
-       eerimoq/monolinux-jiffy:0.15 bash -c "source setup.sh && $COMMAND"
+       eerimoq/monolinux-jiffy:0.18 bash -c "source setup.sh && $COMMAND"

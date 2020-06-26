@@ -16,6 +16,9 @@
 #include <arpa/inet.h>
 #include <sys/mount.h>
 #include <sys/ioctl.h>
+#include <sys/time.h>
+#include <sys/resource.h>
+#include <sys/sysmacros.h>
 #include <curl/curl.h>
 #include "ml/ml.h"
 #include "jiffy/pbconfig.h"
@@ -59,10 +62,10 @@ static void insert_modules(const char *modules[], int length)
 static void insert_early_modules(void)
 {
     static const char *modules[] = {
-        "/root/fec.ko",
-        "/root/mbcache.ko",
-        "/root/jbd2.ko",
-        "/root/ext4.ko"
+        /* "/root/fec.ko", */
+        /* "/root/mbcache.ko", */
+        /* "/root/jbd2.ko", */
+        /* "/root/ext4.ko" */
     };
 
     insert_modules(modules, membersof(modules));
@@ -71,9 +74,9 @@ static void insert_early_modules(void)
 static void insert_one_wire_modules(void)
 {
     static const char *modules[] = {
-        "/root/cn.ko",
-        "/root/wire.ko",
-        "/root/w1-gpio.ko"
+        /* "/root/cn.ko", */
+        /* "/root/wire.ko", */
+        /* "/root/w1-gpio.ko" */
     };
 
     insert_modules(modules, membersof(modules));
@@ -138,7 +141,6 @@ static void create_folders(void)
 static void create_files(void)
 {
     mount("none", "/proc", "proc", 0, NULL);
-    /* mount("none", "/sys", "sysfs", 0, NULL); */
 
     mknod("/dev/null", S_IFCHR | 0644, makedev(1, 3));
     mknod("/dev/zero", S_IFCHR | 0644, makedev(1, 5));
@@ -154,11 +156,12 @@ static void create_files(void)
     mknod("/dev/mmcblk0boot0", S_IFBLK | 0644, makedev(179, 16));
     mknod("/dev/mmcblk0boot1", S_IFBLK | 0644, makedev(179, 32));
     mknod("/dev/gpiochip1", S_IFCHR | 0644, makedev(254, 0));
+    mknod("/dev/watchdog", S_IFCHR | 0644, makedev(10, 130));
 
     ml_file_write_string("/etc/resolv.conf", "nameserver 8.8.4.4\n");
 }
 
-static void set_gpio1_io00_low(void)
+ void set_gpio1_io00_low(void)
 {
     int fd;
     int res;
@@ -275,7 +278,7 @@ static void *netlink_main(struct netlink_t *self_p)
     return (NULL);
 }
 
-static void netlink_init(struct netlink_t *self_p)
+ void netlink_init(struct netlink_t *self_p)
 {
     int res;
     struct sockaddr_nl addr;
@@ -314,9 +317,15 @@ static void netlink_start(struct netlink_t *self_p)
     pthread_create(&self_p->pthread, NULL, (void *(*)(void *))netlink_main, self_p);
 }
 
-int main()
+int main(int argc, const char *argv[])
 {
     fprintf(stderr, "main\n");
+
+    if (argc == 2) {
+        if (strcmp(argv[1], "finalize_coredump") == 0) {
+            ml_finalize_coredump("/disk/coredumps", 3);
+        }
+    }
 
     pthread_setname_np(pthread_self(), "main");
 
@@ -335,21 +344,21 @@ int main()
     ml_log_object_load();
     set_gpio1_io00_low();
     ml_print_uptime();
-    curl_global_init(CURL_GLOBAL_DEFAULT);
+    //curl_global_init(CURL_GLOBAL_DEFAULT);
     ml_shell_start();
     netlink_start(&netlink);
     ml_network_interface_up("eth0");
     insert_one_wire_modules();
     one_wire_start();
+    wait_for_eth0_up();
 
 # if 0
     ml_network_interface_configure("eth0",
-                                   "198.18.1.2",
+                                   "192.168.0.3",
                                    "255.255.255.0",
                                    1500);
-    ml_network_interface_add_route("eth0", "198.18.1.1");
+    ml_network_interface_add_route("eth0", "192.168.0.1");
 #else
-    wait_for_eth0_up();
     ml_dhcp_client_start(&dhcp_client);
 #endif
 

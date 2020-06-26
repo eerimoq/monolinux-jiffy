@@ -2,9 +2,9 @@ FROM ubuntu:20.04
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-COPY arm-linux-musleabi-cross.tgz .
-RUN tar xf arm-linux-musleabi-cross.tgz -C /opt
-RUN rm arm-linux-musleabi-cross.tgz
+COPY arm-linux-musleabi-cross-10.tgz .
+RUN tar xf arm-linux-musleabi-cross-10.tgz -C /opt
+RUN rm arm-linux-musleabi-cross-10.tgz
 
 RUN apt-get update && \
     apt-get install -y \
@@ -37,7 +37,13 @@ RUN apt-get update && \
     locales \
     xxd \
     tio \
-    liblz4-tool
+    liblz4-tool \
+    gdb-multiarch \
+    texinfo \
+    unzip \
+    help2man \
+    gawk \
+    libtool-bin
 
 COPY bpak bpak
 RUN cd bpak && autoreconf -fi && ./configure && make && make install
@@ -61,14 +67,14 @@ ENV LANG C.UTF-8
 
 RUN pip3 install \
     ecdsa \
-    imx \
     pbtools \
     messi \
     nala==0.175.1 \
     systest==5.9.0 \
-    bunga==0.38.0 \
-    bincopy==17.1.0
+    bunga==0.42.0 \
+    bincopy==17.1.0 \
+    pyserial
 
-RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
+RUN echo '%sudo	ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 
 ENV HOSTNAME=monolinux-jiffy

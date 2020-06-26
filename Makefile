@@ -55,3 +55,6 @@ docker-image:
 docker-image-tag-and-push:
 	docker tag monolinux-jiffy:latest eerimoq/monolinux-jiffy:$(TAG)
 	docker push eerimoq/monolinux-jiffy:$(TAG)
+
+gdb-coredump:
+	gdb-multiarch app/build/app.debug core

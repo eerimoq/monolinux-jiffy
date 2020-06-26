@@ -6,3 +6,9 @@ sources/*.tar.xz
 docker/punchboot
 docker/bpak
 report.json
+logs
+Monolinux*
+__pycache__
+core
+log.txt
+info.txt

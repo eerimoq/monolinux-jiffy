@@ -15,6 +15,9 @@ COREDUMP_FMT = '''\
 CORE
 ------------------------------------------------------------------
 {core}
+INFO
+------------------------------------------------------------------
+{info}
 LOG
 ------------------------------------------------------------------
 {log}
@@ -23,12 +26,15 @@ LOG
 
 class Coredump:
 
-    def __init__(self, corefile, logfile):
+    def __init__(self, corefile, logfile, infofile):
         with open(corefile, 'rb') as fin:
             self.core = fin.read()
 
         with open(logfile, 'rb') as fin:
             self.log = fin.read()
+
+        with open(infofile, 'rb') as fin:
+            self.info = fin.read()
 
         command = [
             'gdb-multiarch', 'app/build/app.debug', corefile,
@@ -45,6 +51,7 @@ class Coredump:
             raise Exception('Corrupt coredump. See log for details.')
 
         self.report = COREDUMP_FMT.format(core=core.stdout.decode(),
+                                          info=self.info.decode(),
                                           log=self.log.decode())
 
     def __eq__(self, other):
@@ -109,8 +116,9 @@ class Dut:
 
         for slot in self.list_coredumps():
             self.get_file(f'/disk/coredumps/{slot}/core')
-            self.get_file(f'/disk/coredumps/{slot}/log')
-            coredumps.append(Coredump('core', 'log'))
+            self.get_file(f'/disk/coredumps/{slot}/log.txt')
+            self.get_file(f'/disk/coredumps/{slot}/info.txt')
+            coredumps.append(Coredump('core', 'log.txt', 'info.txt'))
 
         return coredumps
 

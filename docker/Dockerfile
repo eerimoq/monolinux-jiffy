@@ -71,7 +71,7 @@ RUN pip3 install \
     messi \
     nala==0.175.1 \
     systest==5.9.0 \
-    bunga==0.42.0 \
+    bunga==0.44.0 \
     bincopy==17.1.0 \
     pyserial
 

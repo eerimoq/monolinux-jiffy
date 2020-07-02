@@ -55,7 +55,7 @@ class StartUpTest(TestCase):
 
 
 class CoredumpTest(TestCase):
-    """Intentionally crash the system.
+    """Call abort() to create a coredump.
 
     """
 
@@ -78,6 +78,7 @@ class CoredumpTest(TestCase):
             coredump.report)
         self.assert_in(' in command_suicide (', coredump.report)
         self.assert_in(' in ml_shell_execute_command (', coredump.report)
+        self.assert_in('/proc/uptime:', coredump.report)
         self.assert_in('EMERGENCY default CoredumpTest', coredump.report)
 
         for line in coredump.report.splitlines():
@@ -140,7 +141,9 @@ class BungaPutAndGetSpeedTest(TestCase):
 
     def run(self):
         file_size = 1_000_000
-        remote_path = '/disk/bunga-put-and-get-speed-test.bin'
+        # ToDo: MMC is unstable.
+        # remote_path = '/disk/bunga-put-and-get-speed-test.bin'
+        remote_path = '/bunga-put-and-get-speed-test.bin'
 
         fp = BytesIO()
         fp.write(file_size // 10 * b'1234567890')

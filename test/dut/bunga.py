@@ -29,9 +29,15 @@ class ClientThread(bunga.ClientThread):
     def execute_command(self, command):
         LOGGER.debug('%s', command)
 
-        output = super().execute_command(command).decode()
+        try:
+            output = super().execute_command(command).decode()
 
-        for line in output.splitlines():
-            LOGGER.debug('%s', line)
+            for line in output.splitlines():
+                LOGGER.debug('%s', line)
+        except bunga.client.ExecuteCommandError as e:
+            for line in e.output.splitlines():
+                LOGGER.error('%s', line)
+
+            raise
 
         return output

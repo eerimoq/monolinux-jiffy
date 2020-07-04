@@ -43,7 +43,10 @@ RUN apt-get update && \
     unzip \
     help2man \
     gawk \
-    libtool-bin
+    libtool-bin \
+    tcpdump
+
+RUN mv /usr/sbin/tcpdump /usr/bin
 
 COPY bpak bpak
 RUN cd bpak && autoreconf -fi && ./configure && make && make install

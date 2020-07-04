@@ -64,10 +64,10 @@ static void insert_modules(const char *modules[], int length)
 static void insert_early_modules(void)
 {
     static const char *modules[] = {
-        "/root/fec.ko",
-        "/root/mbcache.ko",
-        "/root/jbd2.ko",
-        "/root/ext4.ko"
+        /* "/root/fec.ko", */
+        /* "/root/mbcache.ko", */
+        /* "/root/jbd2.ko", */
+        /* "/root/ext4.ko" */
     };
 
     insert_modules(modules, membersof(modules));
@@ -76,9 +76,9 @@ static void insert_early_modules(void)
 static void insert_one_wire_modules(void)
 {
     static const char *modules[] = {
-        "/root/cn.ko",
-        "/root/wire.ko",
-        "/root/w1-gpio.ko"
+        /* "/root/cn.ko", */
+        /* "/root/wire.ko", */
+        /* "/root/w1-gpio.ko" */
     };
 
     insert_modules(modules, membersof(modules));

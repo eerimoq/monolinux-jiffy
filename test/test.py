@@ -50,6 +50,7 @@ class StartUpTest(TestCase):
 
     def run(self):
         self.get_ip_address()
+        self.dut.start_tcpdump()
         self.dut.start_bunga_client()
         self.dut.remove_coredumps()
 
@@ -130,9 +131,9 @@ class DiskTest(TestCase):
     def run(self):
         output = self.dut.execute_command('cat proc/mounts')
         self.assert_equal(output,
-                          "rootfs / rootfs rw 0 0\n"
+                          "none / rootfs rw 0 0\n"
                           "none /proc proc rw,relatime 0 0\n"
-                          "/dev/mmcblk0p3 /disk ext4 rw,relatime,data=ordered 0 0\n")
+                          "/dev/mmcblk0p3 /disk ext4 rw,relatime 0 0\n")
         self.dut.rm('/disk/test.txt')
         self.dut.execute_command('print test /disk/test.txt')
         output = self.dut.execute_command('cat /disk/test.txt')
@@ -230,7 +231,7 @@ def main():
     sequencer.run(
         StartUpTest(dut),
         [
-            # CoredumpTest(dut),
+            CoredumpTest(dut),
             DiskTest(dut),
             NtpSyncTest(dut),
             HttpGetTest(dut),
@@ -241,6 +242,7 @@ def main():
         ]
     )
 
+    dut.stop()
     sequencer.report_and_exit()
 
 

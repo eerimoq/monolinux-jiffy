@@ -1,3 +1,4 @@
+import getpass
 import subprocess
 import os
 import logging
@@ -71,11 +72,34 @@ class Dut:
         self.serial.start()
         self.bunga_client = None
         self.ip_address = None
+        self.tcpdump_proc = None
 
     def start_bunga_client(self):
         self.bunga_client = BungaClientThread(f'tcp://{self.ip_address}:28000')
         self.bunga_client.start()
         self.bunga_client.wait_for_connection()
+
+    def start_tcpdump(self):
+        command = [
+            'sudo', 'tcpdump',
+            '-Z', getpass.getuser(),
+            '-c', '1000000',
+            '-i', 'any',
+            'host', self.ip_address,
+            # 'or',
+            # 'port', 'bootps',
+            '-w', 'test.pcap'
+        ]
+        LOGGER.debug('Command: %s', ' '.join(command))
+        self.tcpdump_proc = subprocess.Popen(command)
+
+    def stop_tcpdump(self):
+        if self.tcpdump_proc is not None:
+            subprocess.run(['sudo', 'pkill', 'tcpdump'])
+            self.tcpdump_proc = None
+
+    def stop(self):
+        self.stop_tcpdump()
 
     def execute_command(self, command):
         return self.bunga_client.execute_command(command)

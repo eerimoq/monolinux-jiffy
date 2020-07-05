@@ -26,6 +26,7 @@ LINUX_MODULE_FILES += build/linux/drivers/w1/wire.ko
 LINUX_MODULE_FILES += build/linux/drivers/connector/cn.ko
 DISK_IMAGE = build/disk.img
 MONOLINUX_C_LIBRARY_LOG_OBJECT_TXT = "\"/disk/ml/log_object.txt\""
+VERSION ?= 0.5.0
 
 .PHONY: fs
 

@@ -19,7 +19,6 @@
 #include <sys/time.h>
 #include <sys/resource.h>
 #include <sys/sysmacros.h>
-#include <curl/curl.h>
 #include "ml/ml.h"
 #include "jiffy/pbconfig.h"
 #include "jiffy/http_get.h"
@@ -64,7 +63,7 @@ static void insert_modules(const char *modules[], int length)
 static void insert_early_modules(void)
 {
     static const char *modules[] = {
-        /* "/root/fec.ko", */
+        "/root/fec.ko",
         /* "/root/mbcache.ko", */
         /* "/root/jbd2.ko", */
         /* "/root/ext4.ko" */
@@ -346,7 +345,6 @@ int main(int argc, const char *argv[])
     ml_log_object_load();
     set_gpio1_io00_low();
     ml_print_uptime();
-    //curl_global_init(CURL_GLOBAL_DEFAULT);
     ml_shell_start();
     netlink_start(&netlink);
     ml_network_interface_up("eth0");

@@ -147,9 +147,7 @@ class BungaPutAndGetSpeedTest(TestCase):
 
     def run(self):
         file_size = 1_000_000
-        # ToDo: MMC is unstable.
-        # remote_path = '/disk/bunga-put-and-get-speed-test.bin'
-        remote_path = '/bunga-put-and-get-speed-test.bin'
+        remote_path = '/disk/bunga-put-and-get-speed-test.bin'
 
         fp = BytesIO()
         fp.write(file_size // 10 * b'1234567890')

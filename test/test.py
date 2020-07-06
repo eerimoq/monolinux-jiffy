@@ -67,7 +67,6 @@ class CoredumpTest(TestCase):
         self.assert_equal(str(cm.exception.error), 'Connection lost.')
 
     def run(self):
-        self.dut.execute_command('log print emergency CoredumpTest')
         self.suicide_abort()
         self.dut.wait_for_connection()
         coredumps = self.dut.get_coredumps()
@@ -80,7 +79,8 @@ class CoredumpTest(TestCase):
         self.assert_in(' in command_suicide (', coredump.report)
         self.assert_in(' in ml_shell_execute_command (', coredump.report)
         self.assert_in('/proc/uptime:', coredump.report)
-        self.assert_in('EMERGENCY default CoredumpTest', coredump.report)
+        self.assert_in('CRITICAL default Suiciding by calling abort().',
+                       coredump.report)
 
         for line in coredump.report.splitlines():
             LOGGER.debug('coredump: %s', line.strip())

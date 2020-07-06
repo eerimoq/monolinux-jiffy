@@ -125,7 +125,6 @@ static void create_folders(void)
     static const struct folder_t folders[] = {
         { "/proc", 0644 },
         { "/disk", 0777 },
-        { "/etc", 0644 }
     };
     int i;
     int res;
